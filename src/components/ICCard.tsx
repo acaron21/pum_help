@@ -5,10 +5,62 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 
+function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
+    console.log(props.ic.ic)
+    return(
+        
+        <motion.div 
+            initial={{opacity:0}}
+            animate={{opacity:1}}
+            exit={{opacity:0}}
+            transition={{duration:0.2}}
+            onClick={()=>{props.setShowInfoModal(false)}} className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
+                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[50%] min-h-[50%] rounded-xl flex flex-col">
+                   
+                   {/* title */}
+                   <div className="relative w-[100%] flex flex-row justify-center items-center gap-4 p-3 bg-blue-primary rounded-t-xl">
+                        <svg onClick={()=>props.setShowInfoModal(false)} className="fill-white cursor-pointer hover:fill-blue-dark transition absolute top-0 right-0 z-2000" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+
+                        {props.ic.imgs.map(img=>(
+                            <img key={img} src={img} alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
+                        ))}
+                        {/* IC */}
+                        <div className="absolute flex items-center justify-center top-0 left-[50%] transform translate-y-[-110%] translate-x-[-50%] bg-blue-light text-blue-dark  border-2 border-blue-dark p-1 rounded-md text-md md:text-3xl font-semibold ">
+                            IC {props.ic.ic} 
+                        </div>
+
+
+                        {/* name */}
+                        <div className="text-sm md:text-xl px-4 py-1 text-center text-white bg-blue-dark rounded-[50px]">
+                            {props.ic.name}
+                        </div>
+                   </div>
+
+                    {/* BODY */}
+                   <div className="mb-auto p-4"><span className="font-bold">Commentaire : </span><br />{props.ic.comment}</div>
+
+                    <div className="hidden md:flex gap-1 p-2">
+                            {props.ic.content.map(item=>(
+                                <div className="text-sm md:text-md px-4 py-1 text-center text-white bg-blue-primary rounded-[10px]">{item}</div>
+                            ))}
+                        </div>
+                   {/* FOOTER */}
+                   <div className="flex flex-col bg-blue-primary rounded-b-xl text-white p-3">
+                        {/* Contenu */}
+                        <div className="flex gap-2"><span className="font-bold">Terms :</span><p className="italic"> {props.ic.dialects}</p></div>
+                        <div className="flex gap-2"><span className="font-bold flex flex-nowrap">Mots clés :</span><p className="italic flex flex-wrap"> {props.ic.key_words.join(', ')}</p></div>
+                   </div>
+                </div>
+        </motion.div>
+    
+    )
+}
+
 
 export default function ICCard(props: IC){
 
     const [copied, setCopied] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
 
     const handleCopy = () => {
         const text = "" + props.ic;
@@ -21,8 +73,16 @@ export default function ICCard(props: IC){
         .catch(err => console.error("Erreur lors de la copie", err));
     };
 
+      const handleRightClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.preventDefault(); 
+        setShowInfoModal(true);
+        
+    };
+
     return (
+        <>
         <div
+        onContextMenu={handleRightClick}
         onClick={handleCopy}
         className="relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md border-1 border-blue-light rounded-md transform transition duration-300 hover:bg-blue-light hover:scale-101 hover:z-10 cursor-pointer">
             {/* images */}
@@ -69,7 +129,14 @@ export default function ICCard(props: IC){
                 </motion.div>
                 )}
             </AnimatePresence>
-
+            
+            
         </div>
+        <AnimatePresence>
+            {showInfoModal &&
+                    <InfoModal ic={{...props}} setShowInfoModal={setShowInfoModal}/>
+                }
+        </AnimatePresence>
+        </>
     )
 }

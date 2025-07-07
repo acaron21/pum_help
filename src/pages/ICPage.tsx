@@ -4,41 +4,61 @@ import { useEffect, useRef, useState } from "react";
 import ICCard from "../components/ICCard";
 
 
+
 export type IC = {
     ic: number;
-    imgs:string[];
+    imgs: string[];
     name: string;
     content: string[];
     dialects: string;
     key_words: string[];
-}
+    comment: string;
+};
 
 const ICs: IC[] = [
     {
-    ic: 845,
-    imgs: ["ic/845_tampon_fonte_250.webp", "ic/845_grille_fonte_250.webp"],
-    name: "Fonte lourde B250",
-    content: ["Couvercle fonte B250", "Grille fonte B250"],
-    dialects: "tampon, grille plate, fonte lourde, tampon routier, grille routière",
-    key_words: [
-        "fonte", "lourde", "B250",
-        "tampon", "grille", "couvercle",
-        "tampon fonte", "grille fonte",
-        "tampon B250", "grille B250",
-        "tampon lourd", "grille lourde",
-        "voirie", "routier", "route",
-        "tampon routier", "grille routière",
-        "tampon voirie", "grille voirie",
-        "couvercle fonte", "regard fonte", "regard B250"
-    ]
+        ic: 843,
+        imgs: ["ic/843_fond.webp", "ic/843_rehausse.webp", "ic/843_couvercle.webp"],
+        name: "Regard béton",
+        content: ["Fond de boîte", "Réhausse", "Couvercle"],
+        dialects: "tampon, opercule, boite béton, regard pluvial",
+        key_words: [
+            "regard", "béton", "beton", "boite", "boîte",
+            "pluvial", "réhausse", "rehausse",
+            "couvercle", "tampon", "opercule",
+            "regard béton", "regard pluvial", "regard assainissement",
+            "regard telecom", "regard télécom", "boite regard",
+            "fond de boite", "fond de boîte"
+        ],
+        comment: "Diamètre exprimé : intérieur"
     },
     {
-    ic: 137,
-    imgs: ["ic/137_tampon_fonte_125.webp", "ic/137_grille_fonte_125.webp"],
-    name: "Fonte légère B125",
-    content: ["Couvercle fonte B125", "Grilles fonte B125"],
-    dialects: "tampon, grille plate, trottoir",
-    key_words: ["fonte", "legere", "légère", "B125", "tampon", "grille", "grille fonte", "tampon fonte", "trottoir", "voirie", "couvercle", "tampon léger", "tampon B125"]
+        ic: 845,
+        imgs: ["ic/845_tampon_fonte_250.webp", "ic/845_grille_fonte_250.webp"],
+        name: "Fonte lourde B250",
+        content: ["Couvercle fonte B250", "Grille fonte B250"],
+        dialects: "tampon, grille plate, fonte lourde, tampon routier, grille routière",
+        key_words: [
+            "fonte", "lourde", "B250",
+            "tampon", "grille", "couvercle",
+            "tampon fonte", "grille fonte",
+            "tampon B250", "grille B250",
+            "tampon lourd", "grille lourde",
+            "voirie", "routier", "route",
+            "tampon routier", "grille routière",
+            "tampon voirie", "grille voirie",
+            "couvercle fonte", "regard fonte", "regard B250"
+        ],
+        comment: ""
+    },
+    {
+        ic: 137,
+        imgs: ["ic/137_tampon_fonte_125.webp", "ic/137_grille_fonte_125.webp"],
+        name: "Fonte légère B125",
+        content: ["Couvercle fonte B125", "Grilles fonte B125"],
+        dialects: "tampon, grille plate, trottoir",
+        key_words: ["fonte", "legere", "légère", "B125", "tampon", "grille", "grille fonte", "tampon fonte", "trottoir", "voirie", "couvercle", "tampon léger", "tampon B125"],
+        comment: ""
     },
     {
         ic: 842,
@@ -46,7 +66,8 @@ const ICs: IC[] = [
         name: "Chambre télécom",
         content: ["L0T", "L1T", "L2T", "L3T", "L4T"],
         dialects: "chambre tirage, chambre telecom, chambre téléphonique",
-        key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique", "regard telecom", "regard télécom"]
+        key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique"],
+        comment: ""
     },
     {
         ic: 144,
@@ -54,7 +75,8 @@ const ICs: IC[] = [
         name: "Cadre et tampon",
         content: ["Cadre fonte", "Couvercle fonte"],
         dialects: "tampon, cadre fonte, tampon fonte",
-        key_words: ["cadre", "tampon", "fonte", "couvercle", "tampon fonte", "cadre tampon"]
+        key_words: ["cadre", "tampon", "fonte", "couvercle", "tampon fonte", "cadre tampon"],
+        comment: ""
     },
     {
         ic: 133,
@@ -62,7 +84,8 @@ const ICs: IC[] = [
         name: "Drainage",
         content: ["Batidrain", "Delta MS"],
         dialects: "MS, delta",
-        key_words: ["drainage", "batidrain", "delta", "MS", "membrane", "etancheite", "étanchéité"]
+        key_words: ["drainage", "batidrain", "delta", "MS", "membrane", "etancheite", "étanchéité"],
+        comment: ""
     },
     {
         ic: 81,
@@ -70,7 +93,8 @@ const ICs: IC[] = [
         name: "Géotextile",
         content: ["Géotextile"],
         dialects: "bidime",
-        key_words: ["géotextile", "geotextile", "bidime", "tissu", "filtrant", "nappe"]
+        key_words: ["géotextile", "geotextile", "bidime", "tissu", "filtrant", "nappe"],
+        comment: ""
     },
     {
         ic: 67,
@@ -78,7 +102,8 @@ const ICs: IC[] = [
         name: "Couronnes TPC",
         content: ["TPC rouge", "TPC bleu", "TPC vert"],
         dialects: "TPC",
-        key_words: ["TPC", "couronne", "gaine", "fourreau", "rouge", "bleu", "vert", "protection cable", "protection câble"]
+        key_words: ["TPC", "couronne", "gaine", "fourreau", "rouge", "bleu", "vert", "protection cable", "protection câble"],
+        comment: ""
     },
     {
         ic: 68,
@@ -86,7 +111,8 @@ const ICs: IC[] = [
         name: "Gaines électriques",
         content: ["ICTA", "double paroi", "Saint-Ro"],
         dialects: "gaine, ICTA, double paroi, saintro",
-        key_words: ["gaine", "electrique", "électrique", "ICTA", "double paroi", "saintro", "saint-ro", "tube électrique"]
+        key_words: ["gaine", "electrique", "électrique", "ICTA", "double paroi", "saintro", "saint-ro", "tube électrique"],
+        comment: ""
     },
     {
         ic: 72,
@@ -94,7 +120,8 @@ const ICs: IC[] = [
         name: "Canniveaux plastique",
         content: ["Fond", "Grilles"],
         dialects: "canniveau pvc, grille pvc",
-        key_words: ["canniveau", "caniveau", "plastique", "pvc", "grille", "fond", "caniveau pvc"]
+        key_words: ["canniveau", "caniveau", "plastique", "pvc", "grille", "fond", "caniveau pvc"],
+        comment: ""
     },
     {
         ic: 132,
@@ -102,7 +129,8 @@ const ICs: IC[] = [
         name: "Canniveaux fonte",
         content: ["Fond", "Grilles"],
         dialects: "caniveau fonte, grille fonte",
-        key_words: ["canniveau", "caniveau", "fonte", "grille", "fond", "caniveau fonte"]
+        key_words: ["canniveau", "caniveau", "fonte", "grille", "fond", "caniveau fonte"],
+        comment: ""
     },
     {
         ic: 33,
@@ -110,7 +138,8 @@ const ICs: IC[] = [
         name: "Tabourets",
         content: ["Tabourets"],
         dialects: "tabouret de passage",
-        key_words: ["tabouret", "passage", "regard", "tabouret passage"]
+        key_words: ["tabouret", "passage", "regard", "tabouret passage"],
+        comment: ""
     },
     {
         ic: 2798,
@@ -118,7 +147,8 @@ const ICs: IC[] = [
         name: "Béton",
         content: ["Sac béton", "Sac mortier"],
         dialects: "sac béton, sac mortier",
-        key_words: ["béton", "beton", "mortier", "sac beton", "sac mortier", "ciment"]
+        key_words: ["béton", "beton", "mortier", "sac beton", "sac mortier", "ciment"],
+        comment: ""
     },
     {
         ic: 2766,
@@ -126,7 +156,8 @@ const ICs: IC[] = [
         name: "Tube CR4/CR8",
         content: ["Tubes"],
         dialects: "assainissement, CR4, CR8",
-        key_words: ["tube", "CR4", "CR8", "assainissement", "evacuation", "évacuation"]
+        key_words: ["tube", "CR4", "CR8", "assainissement", "evacuation", "évacuation"],
+        comment: ""
     },
     {
         ic: 2763,
@@ -134,7 +165,8 @@ const ICs: IC[] = [
         name: "Tube d'épandage",
         content: ["Tubes"],
         dialects: "épandage, irrigation",
-        key_words: ["tube", "epandage", "épandage", "irrigation", "assainissement", "drainage"]
+        key_words: ["tube", "epandage", "épandage", "irrigation", "assainissement", "drainage"],
+        comment: ""
     },
     {
         ic: 108,
@@ -142,7 +174,8 @@ const ICs: IC[] = [
         name: "Multi-couche",
         content: ["Tube", "Couronnes"],
         dialects: "multicouche, tube multicouche",
-        key_words: ["multicouche", "tube", "couronne", "plomberie", "chauffage"]
+        key_words: ["multicouche", "tube", "couronne", "plomberie", "chauffage"],
+        comment: ""
     },
     {
         ic: 63,
@@ -150,7 +183,8 @@ const ICs: IC[] = [
         name: "Drain agricole",
         content: ["Couronnes drain agricoles"],
         dialects: "drain jaune, agricole",
-        key_words: ["drain", "agricole", "couronne", "jaune", "drainage", "evacuation", "évacuation"]
+        key_words: ["drain", "agricole", "couronne", "jaune", "drainage", "evacuation", "évacuation"],
+        comment: ""
     },
     {
         ic: 21,
@@ -158,9 +192,11 @@ const ICs: IC[] = [
         name: "Tête bouche à clé",
         content: [],
         dialects: "BAC, bouche à clé",
-        key_words: ["tête", "bouche", "clé", "BAC", "tete BAC", "regard BAC"]
-    },
-]
+        key_words: ["tête", "bouche", "clé", "BAC", "tete BAC", "regard BAC"],
+        comment: ""
+    }
+];
+
 
 
 export default function ICPage(){
@@ -188,10 +224,10 @@ export default function ICPage(){
     }, [searchInput]);
     
     return(
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full ">
             {/* Research */}
-                <div className="flex flex-row justify-center sticky top-0 w-full bg-white p-4">
-                    <div className="flex items-center gap-2 bg-blue-light p-3 rounded-[50px] md:w-[70%] w-full">
+                <div className="flex flex-row justify-center top-0 w-full bg-white/50 backdrop-blur-md p-4">
+                    <div className="flex items-center gap-2 bg-blue-light p-3 rounded-[50px] md:w-[40%] w-full">
                         <svg className={clsx("transition duration-300", (searchInput !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
                         <input ref={inputRef} value={searchInput} onChange={(e)=>setSearchInput(e.target.value)} className="flex-1 outline-0 text-xl" type="text" placeholder="Rechercher (contenu de l'IC, nom, produit, ...)"/>
                         
@@ -216,7 +252,7 @@ export default function ICPage(){
                    </div>
                     
                 </div>
-
+                        
                 <div className="flex-1 flex flex-col gap-3 overflow-auto px-1 md:px-8">
                         {filteredIC.map(ic=>(
                             <ICCard key={ic.ic}
