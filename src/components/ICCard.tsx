@@ -84,7 +84,7 @@ export default function ICCard(props: IC){
         <div
         onContextMenu={handleRightClick}
         onClick={handleCopy}
-        className="relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md border-1 border-blue-light rounded-md transform transition duration-300 hover:bg-blue-light hover:scale-101 hover:z-10 cursor-pointer">
+        className="relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md border-1 border-blue-light bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer">
             {/* images */}
             <div className="flex justify-center gap-1 basis-[30%] md:basis-[15%]">
                 {props.imgs.map(img=>(
