@@ -15,7 +15,7 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
             exit={{opacity:0}}
             transition={{duration:0.2}}
             onClick={()=>{props.setShowInfoModal(false)}} className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
-                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[50%] min-h-[50%] rounded-xl flex flex-col">
+                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[50%] min-h-[70%] rounded-xl flex flex-col">
                    
                    {/* title */}
                    <div className="relative w-[100%] flex flex-row justify-center items-center gap-4 p-3 bg-blue-primary rounded-t-xl">
@@ -37,7 +37,7 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                    </div>
 
                     {/* BODY */}
-                   <div className="mb-auto p-4"><span className="font-bold">Commentaire : </span><br />{props.ic.comment}</div>
+                   <div className="mb-auto p-4"><span className="font-bold">Commentaire : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p></div>
 
                     <div className="hidden md:flex gap-1 p-2">
                             {props.ic.content.map(item=>(

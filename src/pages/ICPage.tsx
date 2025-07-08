@@ -21,16 +21,18 @@ const ICs: IC[] = [
         imgs: ["ic/843_fond.webp", "ic/843_rehausse.webp", "ic/843_couvercle.webp"],
         name: "Regard béton",
         content: ["Fond de boîte", "Réhausse", "Couvercle"],
-        dialects: "tampon, opercule, boite béton, regard pluvial",
+        dialects: "boite béton, regard pluvial, Boisseaux, Parcellaires",
         key_words: [
             "regard", "béton", "beton", "boite", "boîte",
             "pluvial", "réhausse", "rehausse",
             "couvercle", "tampon", "opercule",
             "regard béton", "regard pluvial", "regard assainissement",
             "regard telecom", "regard télécom", "boite regard",
-            "fond de boite", "fond de boîte"
+            "fond de boite", "fond de boîte", "boisseaux"
         ],
-        comment: "Diamètre exprimé : intérieur"
+        comment: `
+        Diamètre exprimé : intérieur
+        `
     },
     {
         ic: 845,
@@ -64,7 +66,7 @@ const ICs: IC[] = [
         ic: 842,
         imgs: ["ic/842_chambre.webp"],
         name: "Chambre télécom",
-        content: ["L0T", "L1T", "L2T", "L3T", "L4T"],
+        content: ["L0T", "L1T", "L2T", "..."],
         dialects: "chambre tirage, chambre telecom, chambre téléphonique",
         key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique"],
         comment: ""
@@ -194,7 +196,187 @@ const ICs: IC[] = [
         dialects: "BAC, bouche à clé",
         key_words: ["tête", "bouche", "clé", "BAC", "tete BAC", "regard BAC"],
         comment: ""
-    }
+    },
+    {
+        ic: 1272,
+        imgs: ["ic/1272_boite_bleue.webp"],
+        name: "Boîte plancher",
+        content: ["Boite bleue"],
+        dialects: "boite bleue, plancher, boite plancher",
+        key_words: ["boite", "boîte", "plancher", "boite bleue", "boite plancher", "bleue"],
+        comment: ""
+    },
+    {
+        ic: 1372,
+        imgs: ["ic/xxx.webp"],
+        name: "Couvercle plastiques",
+        content: [],
+        dialects: "couvercle plastique",
+        key_words: ["couvercle", "plastique", "couvercle plastique"],
+        comment: ""
+    },
+    {
+        ic: 73,
+        imgs: ["ic/73_fosse.webp"],
+        name: "Fosses/Micro-station",
+        content: [],
+        dialects: "fosse, microstation, micro-station",
+        key_words: ["fosse", "microstation", "micro-station", "assainissement", "epuration", "épuration"],
+        comment: ""
+    },
+    {
+        ic: 907,
+        imgs: ["ic/907_isolant.webp"],
+        name: "Isolant",
+        content: [],
+        dialects: "isolant, isolation",
+        key_words: ["isolant", "isolation", "panneau isolant", "rouleau isolant"],
+        comment: ""
+    },
+    {
+        ic: 146,
+        imgs: ["ic/146_cuve_EP.webp"],
+        name: "Cuve EP",
+        content: [],
+        dialects: "cuve EP, eau pluviale",
+        key_words: ["cuve", "EP", "eau pluviale", "cuve EP", "cuve pluviale", "recuperation eau"],
+        comment: ""
+    },
+    {
+        ic: 77,
+        imgs: ["ic/77_pompe_relevage.webp"],
+        name: "Pompe domestique/relevage",
+        content: [],
+        dialects: "pompe domestique, pompe relevage",
+        key_words: ["pompe", "domestique", "relevage", "pompe relevage", "pompe domestique"],
+        comment: ""
+    },
+    {
+        ic: 908,
+        imgs: ["ic/xxx.webp"],
+        name: "Touret rac plt",
+        content: [],
+        dialects: "gaz",
+        key_words: ["touret", "rac plt", "gaz", "relevage", "touret gaz"],
+        comment: ""
+    },
+    {
+        ic: 69,
+        imgs: ["ic/xxx.webp"],
+        name: "Rac télécom",
+        content: [],
+        dialects: "raccord telecom, raccord télécom",
+        key_words: ["rac", "raccord", "telecom", "télécom", "raccord telecom", "raccord télécom"],
+        comment: ""
+    },
+    {
+        ic: 59,
+        imgs: ["ic/59_ccv.webp"],
+        name: "Niches à eaux",
+        content: ["CCV", "regard compteur"],
+        dialects: "niche eau, CCV, regard compteur",
+        key_words: ["niche", "eau", "niche eau", "regard", "compteur", "CCV", "regard compteur"],
+        comment: ""
+    },
+    {
+        ic: 116,
+        imgs: ["ic/116_cour_pe.webp"],
+        name: "Couronnes PE",
+        content: ["Couronnes PE"],
+        dialects: "PE, couronne PE",
+        key_words: ["couronne", "PE", "couronne PE", "polyethylene", "polyéthylène"],
+        comment: ""
+    },
+    {
+        ic: 1161,
+        imgs: ["ic/1161_tube_pe.webp"],
+        name: "Tubes PE",
+        content: ["tubes"],
+        dialects: "tube PE",
+        key_words: ["tube", "PE", "tube PE", "polyethylene", "polyéthylène", "tuyau PE"],
+        comment: ""
+    },
+    {
+        ic: 60,
+        imgs: ["ic/60_cour_per.webp", "ic/PER_img1.webp"],
+        name: "PER",
+        content: ["Couronnes PER nues", "Couronnes PER pré-gainées"],
+        dialects: "PER, couronne PER",
+        key_words: ["PER", "couronne", "couronne PER", "tube PER", "couronne pre-gainee", "pré-gainée"],
+        comment: ""
+    },
+    {
+        ic: 78,
+        imgs: ["ic/78_sous_dalle.webp"],
+        name: "Sous Dalle",
+        content: ["Sous dalle", "Polyane", "Bache de protection"],
+        dialects: "sous dalle, polyane, bâche",
+        key_words: ["sous dalle", "polyane", "bache", "bâche", "protection", "film plastique"],
+        comment: ""
+    },
+    {
+        ic: 2891,
+        imgs: ["ic/xxx.webp"],
+        name: "Tête de sécurités",
+        content: ["Tête réhaussable"],
+        dialects: "tete securite, tete rehaussable",
+        key_words: ["tete", "tête", "securite", "sécurité", "tete securite", "tete rehaussable", "réhaussable"],
+        comment: ""
+    },
+    {
+        ic: 122,
+        imgs: ["ic/122_conteneur_grillage.webp"],
+        name: "Conteneur Grillagé",
+        content: [],
+        dialects: "conteneur grillagé",
+        key_words: ["conteneur", "grillage", "grillagé", "conteneur grillagé", "poubelle grillagée"],
+        comment: ""
+    },
+    {
+        ic: 922,
+        imgs: ["ic/xxx.webp"],
+        name: "Consommables",
+        content: [],
+        dialects: "consommables",
+        key_words: ["consommable", "consommables", "usage chantier"],
+        comment: ""
+    },
+    {
+        ic: 905,
+        imgs: ["ic/905_fonte_smu_rouge.webp", "ic/905_fonte_smu_gris.webp"],
+        name: "Fonte SMU",
+        content: ["Raccord fonte grise", "Raccords fonte rouge"],
+        dialects: "fonte SMU, raccord SMU",
+        key_words: ["fonte", "SMU", "fonte SMU", "raccord", "raccord fonte", "raccord SMU"],
+        comment: ""
+    },
+    {
+        ic: 88,
+        imgs: ["ic/xxx.webp"],
+        name: "PE irrigation",
+        content: [],
+        dialects: "PE irrigation",
+        key_words: ["PE", "irrigation", "PE irrigation", "tube irrigation"],
+        comment: ""
+    },
+    {
+        ic: 323,
+        imgs: ["ic/323_racc_ecopal1.webp", "ic/323_racc_ecopal2.webp"],
+        name: "Raccords annelé ECOPAL",
+        content: [],
+        dialects: "ecopal, raccord annelé",
+        key_words: ["raccord", "annelé", "ecopal", "raccord ecopal", "raccord annelé"],
+        comment: ""
+    },
+    {
+        ic: 841,
+        imgs: ["ic/841_rehausse_chambre_telecom.webp"],
+        name: "Réhausse Chambre télécom",
+        content: [],
+        dialects: "rehausse chambre telecom, réhausse chambre télécom",
+        key_words: ["rehausse", "réhausse", "chambre", "telecom", "télécom", "rehausse telecom", "réhausse télécom"],
+        comment: ""
+    },
 ];
 
 
