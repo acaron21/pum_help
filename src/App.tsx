@@ -18,7 +18,7 @@ function App() {
         <Navigation/>
         <div className="flex-1 flex flex-col h-0">
           <Routes>
-            <Route path="/" element={<Navigate to="/how" replace />} />
+            <Route path="/" element={<Navigate to="/ic" replace />} />
             <Route path="/how" element={<HomePage />} />
             <Route path="/where" element={<WherePage />} />
             <Route path="/ic" element={<ICPage />} />
