@@ -22,7 +22,7 @@ export default React.memo(function ArticleCard(props: ArticleCardProp) {
       )}
     >
       <img
-        src={props.img_src}
+        src={`${import.meta.env.BASE_URL}${props.img_src}`}
         alt=""
         className="object-contain w-full h-full rounded-xl"
       />
