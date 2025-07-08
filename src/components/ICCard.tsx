@@ -88,7 +88,7 @@ export default function ICCard(props: IC){
             {/* images */}
             <div className="flex justify-center gap-1 basis-[30%] md:basis-[15%]">
                 {props.imgs.map(img=>(
-                    <img key={img} src={img} alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
+                    <img key={img} src={`${import.meta.env.BASE_URL}${img}`} alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
                 ))}
             </div>
 
