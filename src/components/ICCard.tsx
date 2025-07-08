@@ -22,7 +22,7 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                         <svg onClick={()=>props.setShowInfoModal(false)} className="fill-white cursor-pointer hover:fill-blue-dark transition absolute top-0 right-0 z-2000" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
 
                         {props.ic.imgs.map(img=>(
-                            <img key={img} `${import.meta.env.BASE_URL}${img}` alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
+                            <img key={img} src={`${import.meta.env.BASE_URL}${img}`} alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
                         ))}
                         {/* IC */}
                         <div className="absolute flex items-center justify-center top-0 left-[50%] transform translate-y-[-110%] translate-x-[-50%] bg-blue-light text-blue-dark  border-2 border-blue-dark p-1 rounded-md text-md md:text-3xl font-semibold ">
