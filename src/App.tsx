@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
 
         <Navigation/>
         <div className="flex-1 flex flex-col h-0">
