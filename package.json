@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -u \"github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\" --repo https://$GITHUB_ACTOR:${GITHUB_TOKEN}@github.com/acaron21/pum_help.git"
+   "deploy": "gh-pages -d dist --repo https://$GITHUB_ACTOR:${GITHUB_TOKEN}@github.com/acaron21/pum_help.git"
+
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
