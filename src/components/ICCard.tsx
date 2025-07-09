@@ -1,4 +1,4 @@
-
+import ICContentOptions from "./ICContentOptions";
 
 import type { IC } from "../pages/ICPage";
 import { useState } from "react";
@@ -15,7 +15,7 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
             exit={{opacity:0}}
             transition={{duration:0.2}}
             onClick={()=>{props.setShowInfoModal(false)}} className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
-                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[50%] min-h-[70%] rounded-xl flex flex-col">
+                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[70%] min-h-[80%] rounded-xl flex flex-col">
                    
                    {/* title */}
                    <div className="relative w-[100%] flex flex-row justify-center items-center gap-4 p-3 bg-blue-primary rounded-t-xl">
@@ -37,13 +37,21 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                    </div>
 
                     {/* BODY */}
-                   <div className="mb-auto p-4"><span className="font-bold">Commentaire : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p></div>
+                   <div className="mb-auto p-4">
+                        <p className="italic">Sélection Regard Béton</p>
+                        {/* Options */}
+                        <ICContentOptions ic={props.ic.ic}/>
+
+                        {/* comments */}
+                        <span className="font-bold">Commentaire : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p>
+                    </div>
 
                     <div className="hidden md:flex gap-1 p-2">
                             {props.ic.content.map(item=>(
                                 <div className="text-sm md:text-md px-4 py-1 text-center text-white bg-blue-primary rounded-[10px]">{item}</div>
                             ))}
-                        </div>
+                    </div>
+
                    {/* FOOTER */}
                    <div className="flex flex-col bg-blue-primary rounded-b-xl text-white p-3">
                         {/* Contenu */}

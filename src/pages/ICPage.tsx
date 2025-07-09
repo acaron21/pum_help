@@ -36,9 +36,9 @@ const ICs: IC[] = [
     },
     {
         ic: 845,
-        imgs: ["ic/845_tampon_fonte_250.webp", "ic/845_grille_fonte_250.webp"],
+        imgs: ["ic/845_tampon_fonte_250.webp", "ic/845_grille_fonte_250.webp", "ic/845_avaloir.webp"],
         name: "Fonte lourde B250",
-        content: ["Couvercle fonte B250", "Grille fonte B250"],
+        content: ["Couvercle fonte B250", "Grille fonte B250", "Avaloir"],
         dialects: "tampon, grille plate, fonte lourde, tampon routier, grille routière",
         key_words: [
             "fonte", "lourde", "B250",
@@ -49,7 +49,8 @@ const ICs: IC[] = [
             "voirie", "routier", "route",
             "tampon routier", "grille routière",
             "tampon voirie", "grille voirie",
-            "couvercle fonte", "regard fonte", "regard B250"
+            "couvercle fonte", "regard fonte", "regard B250",
+            "tgas", "avaloir",
         ],
         comment: ""
     },
@@ -208,12 +209,12 @@ const ICs: IC[] = [
     },
     {
         ic: 1372,
-        imgs: ["ic/xxx.webp"],
-        name: "Couvercle plastiques",
+        imgs: ["ic/1372_couvercle_composite.webp"],
+        name: "Couvercle Composite",
         content: [],
         dialects: "couvercle plastique",
-        key_words: ["couvercle", "plastique", "couvercle plastique"],
-        comment: ""
+        key_words: ["couvercle", "plastique","composite","regard", "couvercle plastique"],
+        comment: "Couvercle composite pour regard béton"
     },
     {
         ic: 73,
