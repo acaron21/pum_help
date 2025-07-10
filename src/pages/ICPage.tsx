@@ -17,6 +17,35 @@ export type IC = {
 
 const ICs: IC[] = [
     {
+        ic: 117,
+        imgs: ["ic/117_tube_pvc.webp"],
+        name: "Tube PVC",
+        content: ["Tubes PVC évacuation", "Tubes PVC blanc"],
+        dialects: "",
+        key_words: [
+            "tube", "pvc"
+        ],
+        comment: ``
+    },
+    {
+        ic: 67,
+        imgs: ["ic/67_tpc_rouge.webp", "ic/67_tpc_vert.webp", "ic/67_tpc_bleu.webp"],
+        name: "Couronnes TPC",
+        content: ["TPC rouge", "TPC bleu", "TPC vert"],
+        dialects: "TPC",
+        key_words: ["TPC", "couronne", "gaine", "fourreau", "rouge", "bleu", "vert", "protection cable", "protection câble"],
+        comment: ""
+    },
+        {
+        ic: 116,
+        imgs: ["ic/116_cour_pe.webp"],
+        name: "Couronnes PE",
+        content: ["Couronnes PE"],
+        dialects: "PE, couronne PE",
+        key_words: ["couronne", "PE", "couronne PE", "polyethylene", "polyéthylène"],
+        comment: ""
+    },
+    {
         ic: 843,
         imgs: ["ic/843_fond.webp", "ic/843_rehausse.webp", "ic/843_couvercle.webp"],
         name: "Regard béton",
@@ -30,9 +59,7 @@ const ICs: IC[] = [
             "regard telecom", "regard télécom", "boite regard",
             "fond de boite", "fond de boîte", "boisseaux"
         ],
-        comment: `
-        Diamètre exprimé : intérieur
-        `
+        comment: `Diamètre exprimé dans sage pour les regards/couvercles bétons: intérieur`
     },
     {
         ic: 845,
@@ -100,21 +127,12 @@ const ICs: IC[] = [
         comment: ""
     },
     {
-        ic: 67,
-        imgs: ["ic/67_tpc_rouge.webp", "ic/67_tpc_vert.webp", "ic/67_tpc_bleu.webp"],
-        name: "Couronnes TPC",
-        content: ["TPC rouge", "TPC bleu", "TPC vert"],
-        dialects: "TPC",
-        key_words: ["TPC", "couronne", "gaine", "fourreau", "rouge", "bleu", "vert", "protection cable", "protection câble"],
-        comment: ""
-    },
-    {
         ic: 68,
         imgs: ["ic/68_icta.webp", "ic/68_double_parroie.webp"],
-        name: "Gaines électriques",
-        content: ["ICTA", "double paroi", "Saint-Ro"],
+        name: "Gaines électriques/Sanitaire",
+        content: ["ICTA", "double paroi","Sanitaire", "Saint-Ro"],
         dialects: "gaine, ICTA, double paroi, saintro",
-        key_words: ["gaine", "electrique", "électrique", "ICTA", "double paroi", "saintro", "saint-ro", "tube électrique"],
+        key_words: ["sanitaire", "gaine", "electrique", "électrique", "ICTA", "double paroi", "saintro", "saint-ro", "tube électrique"],
         comment: ""
     },
     {
@@ -279,15 +297,7 @@ const ICs: IC[] = [
         key_words: ["niche", "eau", "niche eau", "regard", "compteur", "CCV", "regard compteur"],
         comment: ""
     },
-    {
-        ic: 116,
-        imgs: ["ic/116_cour_pe.webp"],
-        name: "Couronnes PE",
-        content: ["Couronnes PE"],
-        dialects: "PE, couronne PE",
-        key_words: ["couronne", "PE", "couronne PE", "polyethylene", "polyéthylène"],
-        comment: ""
-    },
+
     {
         ic: 1161,
         imgs: ["ic/1161_tube_pe.webp"],

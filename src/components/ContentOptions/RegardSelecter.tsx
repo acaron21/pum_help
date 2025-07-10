@@ -7,8 +7,8 @@ type CouvercleType = {
 }
 
 const couvercleTypes: CouvercleType[] = [
-    {id:0, name:"Béton", diams:[25,30,40,50,60], img:"couvercles/beton.webp"},
-    {id:1, name:"Béton Opércules", diams:[25,30,40,50], img:"couvercles/beton.webp"},
+    {id:0, name:"Béton", diams:[25,30,40,50,60, 70], img:"couvercles/beton.webp"},
+    // {id:1, name:"Béton Opércules", diams:[25,30,40,50], img:"couvercles/beton.webp"},
     {id:2, name:"Fonte Trottoire B125", diams:[30,40,50,60,70], img:"couvercles/fonte_trottoire_125.webp"},
     {id:3, name:"Fonte Hydraulique B125", diams:[30,40,50,60,70], img:"couvercles/fonte_hydrolique_125.webp"},
     {id:4, name:"Fonte Hydraulique C250", diams:[40,50,60,70], img:"couvercles/fonte_hydrolique_250.webp"}, // rajouter 30 si je trouve
@@ -61,11 +61,11 @@ type Couvercle = {
 const couvercles:Couvercle[] =[
 
     // Couvercles bétons 
-    {couvercleTypeID: 0, diam_ext:25, code_pum:48084},
-    {couvercleTypeID: 0, diam_ext:30, code_pum:47225},
-    {couvercleTypeID: 0, diam_ext:40, code_pum:47230},
-    {couvercleTypeID: 0, diam_ext:50, code_pum:47235},
-    {couvercleTypeID: 0, diam_ext:60, code_pum:47240},
+    {couvercleTypeID: 0, diam_ext:30, code_pum:48084},
+    {couvercleTypeID: 0, diam_ext:40, code_pum:47225},
+    {couvercleTypeID: 0, diam_ext:50, code_pum:47230},
+    {couvercleTypeID: 0, diam_ext:60, code_pum:47235},
+    {couvercleTypeID: 0, diam_ext:70, code_pum:47240},
 
     // Couvercles bétons opércule
     {couvercleTypeID: 1, diam_ext:25, code_pum:57806},
@@ -107,21 +107,19 @@ const couvercles:Couvercle[] =[
 ]
 
 import { useEffect, useState } from "react";
-import CustomSelect from "./utils/CustomSelect";
-import CopyLabel from "./utils/CopyLabel";
+import CustomSelect from "../utils/CustomSelect";
+import CopyLabel from "../utils/CopyLabel";
+import Barcode from 'react-barcode';
+import { div } from "framer-motion/client";
+import ScannableBarcode from "../utils/ScannableBarcode";
 
 type Option = {
   label: string;
   value: string | number;
   icon?: string;
 };
+
 export default function RegardSelecter(){
-
-
-
-
-    
-
 
   const diamsOptions =  [
     { label: '25x25', value: 25},
@@ -160,40 +158,46 @@ export default function RegardSelecter(){
             {/* FOND */}
             <div className="bg-blue-light pb-2">
                 <div className="p-2 bg-blue-primary text-white font-bold">Fond</div>
-                <div className="grid grid-cols-[1fr_1fr] items-center text-center pb-4">
-                    <div className="p-2 pb-0 text-lg">D. Intérieur</div>
-                    <div className="p-2 pb-0 text-lg" >D. Exterieur</div>
+                    <div className="grid grid-cols-[1fr_1fr] items-center text-center pb-4">
+                        <div className="p-2 pb-0 text-lg">D. Intérieur</div>
+                        <div className="p-2 pb-0 text-lg" >D. Exterieur</div>
 
-                    <div className="p-2 pt-0">
-                        <CustomSelect
-                        // label="Diamètre"
-                        options={diamsOptions}
-                        value={diamSelected}
-                        onChange={diamSetSelected}
-                        placeholder="---"
-                        />
+                        <div className="p-2 pt-0">
+                            <CustomSelect
+                            // label="Diamètre"
+                            options={diamsOptions}
+                            value={diamSelected}
+                            onChange={diamSetSelected}
+                            placeholder="---"
+                            />
+                        </div>
+                        {diamExt && <p className="p-2 pt-0 ">{diamExt}x{diamExt}</p>}
                     </div>
-                    {diamExt && <p className="p-2 pt-0 ">{diamExt}x{diamExt}</p>}
+                <div className="px-2 flex flex-col gap-2 items-center">
+                    {diamSelected && <CopyLabel text={fonds.filter(f=>f.diam_int===diamSelected.value)[0].code_pum+""}></CopyLabel>}
+                    {diamSelected && <ScannableBarcode value={fonds.filter(f=>f.diam_int===diamSelected.value)[0].code_pum+""} /> }
                 </div>
-
-                {diamSelected && <CopyLabel text={fonds.filter(f=>f.diam_int===diamSelected.value)[0].code_pum+""}></CopyLabel>}
+                
             </div>
             
 
             {/* Rehausse */}
             <div className="flex flex-col justify-between bg-blue-light pb-2">
                 <div className="p-2 bg-blue-primary text-white font-bold ">Réhausse</div>
-                <div className="px-2">
+                <div className="flex-1 opacity-0">.</div>
+                <div className="px-2 flex flex-col gap-2 items-center">
                     {diamSelected && <CopyLabel text={rehausses.filter(r=>r.diam_int===diamSelected.value)[0].code_pum+""}></CopyLabel>}
+                    {diamSelected && <ScannableBarcode value={rehausses.filter(r=>r.diam_int===diamSelected.value)[0].code_pum+""} /> }
                 </div>
+                
                 
             </div>
 
             {/* Couvercle */}
             <div className=" flex-1 flex flex-col justify-between bg-blue-light pb-2">
                 <div className="p-2 bg-blue-primary text-white font-bold">Couvercle/tampon</div>
-                <div className="opacity-0">.</div>
-                <div className="p-2 pb-4">
+                <div className="opacity-0 text-lg pt-2">.</div>
+                <div className="p-2 pb-4 pt-0 mb-auto">
                     <CustomSelect
                         // label="Diamètre"
                         options={
@@ -213,11 +217,12 @@ export default function RegardSelecter(){
                         placeholder="Couvercle"
                     />
                 </div>
-                <div>
+                <div className="flex flex-col items-center gap-2">
                     {couvercleCodePum ? <CopyLabel text={couvercleCodePum+""}></CopyLabel> : <p className="opacity-0">.</p>}
+                    {couvercleCodePum && <ScannableBarcode value={couvercleCodePum+""} /> }
                 </div>
-                
             </div>
+
         </div>
     )
 }

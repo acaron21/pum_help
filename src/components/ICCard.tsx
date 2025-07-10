@@ -14,8 +14,10 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
             animate={{opacity:1}}
             exit={{opacity:0}}
             transition={{duration:0.2}}
-            onClick={()=>{props.setShowInfoModal(false)}} className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
-                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[70%] min-h-[80%] rounded-xl flex flex-col">
+            onClick={()=>{props.setShowInfoModal(false)}} 
+            className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
+
+                <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[70%] min-h-[80%]  rounded-xl flex flex-col">
                    
                    {/* title */}
                    <div className="relative w-[100%] flex flex-row justify-center items-center gap-4 p-3 bg-blue-primary rounded-t-xl">
@@ -38,12 +40,12 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
 
                     {/* BODY */}
                    <div className="mb-auto p-4">
-                        <p className="italic">Sélection Regard Béton</p>
+                        
                         {/* Options */}
                         <ICContentOptions ic={props.ic.ic}/>
 
                         {/* comments */}
-                        <span className="font-bold">Commentaire : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p>
+                        <span className="font-bold">Commentaires : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p>
                     </div>
 
                     <div className="hidden md:flex gap-1 p-2">
@@ -64,13 +66,15 @@ function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
     )
 }
 
+const listOfTools = [117, 67, 116, 843];
 
 export default function ICCard(props: IC){
 
     const [copied, setCopied] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
 
-    const handleCopy = () => {
+    const handleCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.preventDefault(); 
         const text = "" + props.ic;
         navigator.clipboard.writeText(text)
         .then(() => {
@@ -81,8 +85,8 @@ export default function ICCard(props: IC){
         .catch(err => console.error("Erreur lors de la copie", err));
     };
 
-      const handleRightClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        event.preventDefault(); 
+      const handleRightClick = () => {
+        
         setShowInfoModal(true);
         
     };
@@ -90,9 +94,14 @@ export default function ICCard(props: IC){
     return (
         <>
         <div
-        onContextMenu={handleRightClick}
-        onClick={handleCopy}
+        onContextMenu={handleCopy}
+        onClick={handleRightClick}
         className="relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md border-1 border-blue-light bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer">
+            
+            {
+                listOfTools.includes(props.ic) &&
+                <svg className="fill-blue-primary" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8"/><path d="M12.5 7H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
+            }
             {/* images */}
             <div className="flex justify-center gap-1 basis-[30%] md:basis-[15%]">
                 {props.imgs.map(img=>(

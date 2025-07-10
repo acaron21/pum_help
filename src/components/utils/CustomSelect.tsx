@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-type Option = {
+export type Option = {
   label: string;
   value: string | number;
   icon?: string;
@@ -53,7 +53,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   }, [isOpen]);
 
   return (
-    <div className="relative w-full" ref={containerRef}>
+    <div className="relative" ref={containerRef}>
       {label && <label className="block text-center text-md mb-1 font-medium text-gray-700 ">{label}</label>}
       <div
         className="flex justify-between gap-2 items-center border border-gray-300 rounded-lg px-3 py-2 bg-white cursor-pointer shadow-sm hover:border-gray-400"
