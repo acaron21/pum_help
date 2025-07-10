@@ -1,6 +1,4 @@
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
-
-import HomePage from "./pages/HowPage"
 import WherePage from "./pages/WherePage"
 import Navigation from "./components/Navigation"
 import ICPage from "./pages/ICPage"
