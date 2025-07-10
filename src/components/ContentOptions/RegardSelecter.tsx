@@ -109,8 +109,6 @@ const couvercles:Couvercle[] =[
 import { useEffect, useState } from "react";
 import CustomSelect from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
-import Barcode from 'react-barcode';
-import { div } from "framer-motion/client";
 import ScannableBarcode from "../utils/ScannableBarcode";
 
 type Option = {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import CustomSelect, { type Option } from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
-import Barcode from "react-barcode";
 import ScannableBarcode from "../utils/ScannableBarcode";
 
 type PE = {

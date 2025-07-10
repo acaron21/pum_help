@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import ColorSelector, { type Color } from "../utils/ColorSelector";
 import CustomSelect, { type Option } from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
-import Barcode from "react-barcode";
 import ScannableBarcode from "../utils/ScannableBarcode";
 
 const colors: Color[] = [

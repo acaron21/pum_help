@@ -1,10 +1,9 @@
-import { div } from "framer-motion/client";
+
 import ColorSelector, { type Color } from "../utils/ColorSelector";
 import { useEffect, useState } from "react";
 import CustomSelect from "../utils/CustomSelect";
 import type { Option } from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
-import Barcode from "react-barcode";
 import ScannableBarcode from "../utils/ScannableBarcode";
 
 const colors: Color[] = [
