@@ -3,9 +3,10 @@ import ICContentOptions from "./ICContentOptions";
 import type { IC } from "../pages/ICPage";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import clsx from "clsx";
 
 
-function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
+export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
     console.log(props.ic.ic)
     return(
         
@@ -96,12 +97,11 @@ export default function ICCard(props: IC){
         <div
         onContextMenu={handleCopy}
         onClick={handleRightClick}
-        className="relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md border-1 border-blue-light bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer">
+        className={clsx("relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md   bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer",
+            listOfTools.includes(props.ic) ? "border-blue-primary border-1" : "border-1 border-blue-light"
+        )}>
             
-            {
-                listOfTools.includes(props.ic) &&
-                <svg className="fill-blue-primary" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8"/><path d="M12.5 7H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
-            }
+            
             {/* images */}
             <div className="flex justify-center gap-1 basis-[30%] md:basis-[15%]">
                 {props.imgs.map(img=>(
@@ -118,13 +118,19 @@ export default function ICCard(props: IC){
             <div className="text-sm md:text-xl px-4 py-1 text-center text-white bg-blue-dark rounded-[50px] basis-[50%] md:basis-[15%]">
                 {props.name}
             </div>
-
+            
+            
             {/* Content */}
             <div className="hidden md:flex gap-1 basis-[30%]">
                 {props.content.map(item=>(
                     <div className="text-sm md:text-md px-4 py-1 text-center text-white bg-blue-primary rounded-[10px]">{item}</div>
                 ))}
             </div>
+
+            {
+                listOfTools.includes(props.ic) &&
+                <svg className="fill-blue-primary" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8"/><path d="M12.5 7H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
+            }
 
             {/* dialects */}
             <div className="hidden md:block flex-1 italic text-end">

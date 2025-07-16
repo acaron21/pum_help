@@ -4,6 +4,23 @@ export default function MAJPage(){
     return (
         <div className="flex flex-col p-3">
             <div className="flex gap-3">
+                <p className="font-bold">16/07/25</p>
+                <p>Ajout IC 2766 avec les codes pour le CR4/CR8</p>
+            </div>
+            <div className="flex gap-3">
+                <p className="font-bold">16/07/25</p>
+                <p>Possibilité de rechercher directement un IC par son code</p>
+            </div>
+            <div className="flex gap-3">
+                <p className="font-bold">16/07/25</p>
+                <p>Ajout d'un bouton home pour reset les filtres rapidement</p>
+            </div>
+            <div className="flex gap-3">
+                <p className="font-bold">16/07/25</p>
+                <p>Ajout d'un filtre tube/couronne/béton+fonte</p>
+            </div>
+            <br />
+            <div className="flex gap-3">
                 <p className="font-bold">10/07/25</p>
                 <p>Correction codes couvercles béton</p>
             </div>

@@ -3,6 +3,45 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import ICCard from "../components/ICCard";
 
+type CategoryFilterProps = {
+  selected: string | null;
+  onChange: (selected: string | null) => void;
+};
+
+const CATEGORIES = ["tube", "couronne", "béton/fonte"];
+
+const CategoryFilter: React.FC<CategoryFilterProps> = ({ selected, onChange }) => {
+  const handleClick = (category: string) => {
+    if (selected === category) {
+      onChange(null); // déselection
+    } else {
+      onChange(category); // sélection unique
+    }
+  };
+
+
+  return (
+    <div className="flex flex-wrap gap-2 p-3 justify-center">
+      {CATEGORIES.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => handleClick(cat)}
+          className={`px-4 py-2 rounded-full border text-sm transition font-medium cursor-pointer
+            ${
+              selected === cat
+                ? "bg-blue-dark text-white border-blue-dark"
+                : "bg-blue-light text-blue-dark border-blue-semi-light hover:bg-blue-semi-light"
+            }`}
+        >
+          {cat}
+        </button>
+      ))}
+
+    </div>
+  );
+};
+
+
 
 
 export type IC = {
@@ -13,6 +52,8 @@ export type IC = {
     dialects: string;
     key_words: string[];
     comment: string;
+    shortcut?: boolean;
+    category?: string[];
 };
 
 const ICs: IC[] = [
@@ -25,7 +66,9 @@ const ICs: IC[] = [
         key_words: [
             "tube", "pvc"
         ],
-        comment: ``
+        comment: ``,
+        category:['tube'],
+        shortcut: true,
     },
     {
         ic: 67,
@@ -34,7 +77,8 @@ const ICs: IC[] = [
         content: ["TPC rouge", "TPC bleu", "TPC vert"],
         dialects: "TPC",
         key_words: ["TPC", "couronne", "gaine", "fourreau", "rouge", "bleu", "vert", "protection cable", "protection câble"],
-        comment: ""
+        comment: "",
+        category:['couronne']
     },
         {
         ic: 116,
@@ -43,7 +87,8 @@ const ICs: IC[] = [
         content: ["Couronnes PE"],
         dialects: "PE, couronne PE",
         key_words: ["couronne", "PE", "couronne PE", "polyethylene", "polyéthylène"],
-        comment: ""
+        comment: "",
+        category:['couronne']
     },
     {
         ic: 843,
@@ -59,7 +104,8 @@ const ICs: IC[] = [
             "regard telecom", "regard télécom", "boite regard",
             "fond de boite", "fond de boîte", "boisseaux"
         ],
-        comment: `Diamètre exprimé dans sage pour les regards/couvercles bétons: intérieur`
+        comment: `Diamètre exprimé dans sage pour les regards/couvercles bétons: intérieur`,
+        category:["béton/fonte"]
     },
     {
         ic: 845,
@@ -79,7 +125,8 @@ const ICs: IC[] = [
             "couvercle fonte", "regard fonte", "regard B250",
             "tgas", "avaloir",
         ],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 137,
@@ -88,7 +135,8 @@ const ICs: IC[] = [
         content: ["Couvercle fonte B125", "Grilles fonte B125"],
         dialects: "tampon, grille plate, trottoir",
         key_words: ["fonte", "legere", "légère", "B125", "tampon", "grille", "grille fonte", "tampon fonte", "trottoir", "voirie", "couvercle", "tampon léger", "tampon B125"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 842,
@@ -97,7 +145,8 @@ const ICs: IC[] = [
         content: ["L0T", "L1T", "L2T", "..."],
         dialects: "chambre tirage, chambre telecom, chambre téléphonique",
         key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 144,
@@ -106,7 +155,8 @@ const ICs: IC[] = [
         content: ["Cadre fonte", "Couvercle fonte"],
         dialects: "tampon, cadre fonte, tampon fonte",
         key_words: ["cadre", "tampon", "fonte", "couvercle", "tampon fonte", "cadre tampon"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 133,
@@ -115,7 +165,8 @@ const ICs: IC[] = [
         content: ["Batidrain", "Delta MS"],
         dialects: "MS, delta",
         key_words: ["drainage", "batidrain", "delta", "MS", "membrane", "etancheite", "étanchéité"],
-        comment: ""
+        comment: "",
+        category:['tube']
     },
     {
         ic: 81,
@@ -133,7 +184,8 @@ const ICs: IC[] = [
         content: ["ICTA", "double paroi","Sanitaire", "Saint-Ro"],
         dialects: "gaine, ICTA, double paroi, saintro",
         key_words: ["sanitaire", "gaine", "electrique", "électrique", "ICTA", "double paroi", "saintro", "saint-ro", "tube électrique"],
-        comment: ""
+        comment: "",
+        category:['couronne']
     },
     {
         ic: 72,
@@ -151,7 +203,8 @@ const ICs: IC[] = [
         content: ["Fond", "Grilles"],
         dialects: "caniveau fonte, grille fonte",
         key_words: ["canniveau", "caniveau", "fonte", "grille", "fond", "caniveau fonte"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 33,
@@ -178,7 +231,8 @@ const ICs: IC[] = [
         content: ["Tubes"],
         dialects: "assainissement, CR4, CR8",
         key_words: ["tube", "CR4", "CR8", "assainissement", "evacuation", "évacuation"],
-        comment: ""
+        comment: "",
+        category:['tube']
     },
     {
         ic: 2763,
@@ -187,7 +241,8 @@ const ICs: IC[] = [
         content: ["Tubes"],
         dialects: "épandage, irrigation",
         key_words: ["tube", "epandage", "épandage", "irrigation", "assainissement", "drainage"],
-        comment: ""
+        comment: "",
+        category:['tube']
     },
     {
         ic: 108,
@@ -195,8 +250,9 @@ const ICs: IC[] = [
         name: "Multi-couche",
         content: ["Tube", "Couronnes"],
         dialects: "multicouche, tube multicouche",
-        key_words: ["multicouche", "tube", "couronne", "plomberie", "chauffage"],
-        comment: ""
+        key_words: ["multicouche", "tube","couronne", "plomberie", "chauffage"],
+        comment: "",
+        category:['tube', "couronne"]
     },
     {
         ic: 63,
@@ -205,7 +261,8 @@ const ICs: IC[] = [
         content: ["Couronnes drain agricoles"],
         dialects: "drain jaune, agricole",
         key_words: ["drain", "agricole", "couronne", "jaune", "drainage", "evacuation", "évacuation"],
-        comment: ""
+        comment: "",
+        category:['couronne']
     },
     {
         ic: 21,
@@ -214,7 +271,8 @@ const ICs: IC[] = [
         content: [],
         dialects: "BAC, bouche à clé",
         key_words: ["tête", "bouche", "clé", "BAC", "tete BAC", "regard BAC"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 1272,
@@ -305,7 +363,8 @@ const ICs: IC[] = [
         content: ["tubes"],
         dialects: "tube PE",
         key_words: ["tube", "PE", "tube PE", "polyethylene", "polyéthylène", "tuyau PE"],
-        comment: ""
+        comment: "",
+        category:['tube']
     },
     {
         ic: 60,
@@ -314,7 +373,8 @@ const ICs: IC[] = [
         content: ["Couronnes PER nues", "Couronnes PER pré-gainées"],
         dialects: "PER, couronne PER",
         key_words: ["PER", "couronne", "couronne PER", "tube PER", "couronne pre-gainee", "pré-gainée"],
-        comment: ""
+        comment: "",
+        category:['couronne']
     },
     {
         ic: 78,
@@ -359,7 +419,8 @@ const ICs: IC[] = [
         content: ["Raccord fonte grise", "Raccords fonte rouge"],
         dialects: "fonte SMU, raccord SMU",
         key_words: ["fonte", "SMU", "fonte SMU", "raccord", "raccord fonte", "raccord SMU"],
-        comment: ""
+        comment: "",
+        category:["béton/fonte"]
     },
     {
         ic: 88,
@@ -396,30 +457,43 @@ export default function ICPage(){
     const [searchInput, setSearchInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [filteredIC, setFilteredIC] = useState<IC[]>([])
+
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     
 
-    
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            const searchTerms = searchInput.toLowerCase().trim().split(/\s+/);
+        const searchTerms = searchInput.toLowerCase().trim().split(/\s+/);
 
-            const newFiltered = ICs.filter(ic =>
-            searchTerms.every(term =>
-                ic.key_words.some(keyword => keyword.toLowerCase().startsWith(term))
-            )
-            );
+        const newFiltered = ICs.filter(ic => {
+        const matchesSearch = searchTerms.every(term =>
+            ic.key_words.some(keyword =>
+            keyword.toLowerCase().startsWith(term)
+            ) || ic.ic.toString().startsWith(term)
+        );
 
-            setFilteredIC(newFiltered);
+        const matchesCategory =
+            !selectedCategory ||
+            (Array.isArray(ic.category) && ic.category.some(cat => cat.toLowerCase() === selectedCategory));
 
-        }, 300); // délai de debounce en ms
+        return matchesSearch && matchesCategory;
+        });
 
-        return () => clearTimeout(delayDebounce);
-    }, [searchInput]);
-    
+        setFilteredIC(newFiltered);
+    }, 300);
+    return () => clearTimeout(delayDebounce);
+    }, [searchInput, selectedCategory]);
+
+    const reset = () =>{
+        setSelectedCategory(null);
+        setSearchInput("")
+    }
+
     return(
         <div className="flex flex-col h-full bg-blue-light">
             {/* Research */}
-                <div className="flex flex-row justify-center top-0 w-full bg-white backdrop-blur-md p-4">
+                <div className="flex flex-row items-center justify-start gap-3 top-0 w-full bg-white backdrop-blur-md p-4">
+                    <svg onClick={()=>reset()} className="fill-blue-primary cursor-pointer hover:fill-blue-dark transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M4 19v-9q0-.475.213-.9t.587-.7l6-4.5q.525-.4 1.2-.4t1.2.4l6 4.5q.375.275.588.7T20 10v9q0 .825-.588 1.413T18 21h-3q-.425 0-.712-.288T14 20v-5q0-.425-.288-.712T13 14h-2q-.425 0-.712.288T10 15v5q0 .425-.288.713T9 21H6q-.825 0-1.412-.587T4 19"/></svg>
                     <div className="flex items-center gap-2 bg-blue-light p-3 rounded-[50px] md:w-[40%] w-full">
                         <svg className={clsx("transition duration-300", (searchInput !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
                         <input ref={inputRef} value={searchInput} onChange={(e)=>setSearchInput(e.target.value)} className="flex-1 outline-0 text-xl" type="text" placeholder="Rechercher (contenu de l'IC, nom, produit, ...)"/>
@@ -443,10 +517,14 @@ export default function ICPage(){
                         }
                         </AnimatePresence>
                    </div>
-                    
+                    <CategoryFilter
+                    selected={selectedCategory}
+                    onChange={setSelectedCategory}
+                    />        
                 </div>
                         
                 <div className="flex-1 flex flex-col gap-3 overflow-auto px-1 md:px-8 md:py-3">
+
                         {filteredIC.map(ic=>(
                             <ICCard key={ic.ic}
                             {...ic}
