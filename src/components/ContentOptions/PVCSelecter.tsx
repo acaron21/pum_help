@@ -69,7 +69,7 @@ export default function PVCSelecter() {
   );
 
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-start text-xl">
 
         <p className="w-full bg-blue-primary text-white font-bold text-center">Sélection tube PVC</p>
         <div className="w-full bg-blue-light flex flex-row items-center gap-5">

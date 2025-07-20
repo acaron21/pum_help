@@ -40,7 +40,7 @@ const ScannableBarcode: React.FC<ScannableBarcodeProps> = ({ value }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             onClick={handleToggleOverlay}
-            className="fixed inset-0 bg-black z-40"
+            className="fixed inset-0 bg-black z-9999"
           >
             {position && (
               <motion.div
@@ -57,7 +57,7 @@ const ScannableBarcode: React.FC<ScannableBarcodeProps> = ({ value }) => {
                   backgroundColor: 'white',
                   borderRadius: '0.5rem',
                 }}
-                className="z-50 shadow-lg"
+                className="z-9999 shadow-lg"
               />
             )}
           </motion.div>
@@ -66,7 +66,7 @@ const ScannableBarcode: React.FC<ScannableBarcodeProps> = ({ value }) => {
 
       <div
         ref={barcodeRef}
-        className={`flex justify-center px-2 relative cursor-pointer ${showOverlay ? 'z-50' : ''}`}
+        className={`flex justify-center px-2 relative cursor-pointer ${showOverlay ? 'z-9999' : ''}`}
         onClick={handleToggleOverlay}
       >
         <Barcode

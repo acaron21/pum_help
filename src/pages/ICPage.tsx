@@ -108,6 +108,16 @@ const ICs: IC[] = [
         category:["béton/fonte"]
     },
     {
+        ic: 842,
+        imgs: ["ic/842_chambre.webp"],
+        name: "Chambre télécom",
+        content: ["L0T", "L1T", "L2T", "..."],
+        dialects: "chambre tirage, chambre telecom, chambre téléphonique",
+        key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique"],
+        comment: "",
+        category:["béton/fonte"]
+    },
+    {
         ic: 845,
         imgs: ["ic/845_tampon_fonte_250.webp", "ic/845_grille_fonte_250.webp", "ic/845_avaloir.webp"],
         name: "Fonte lourde B250",
@@ -139,16 +149,6 @@ const ICs: IC[] = [
         category:["béton/fonte"]
     },
     {
-        ic: 842,
-        imgs: ["ic/842_chambre.webp"],
-        name: "Chambre télécom",
-        content: ["L0T", "L1T", "L2T", "..."],
-        dialects: "chambre tirage, chambre telecom, chambre téléphonique",
-        key_words: ["chambre", "telecom", "télécom", "tirage", "passage", "fourreau", "telephonique", "téléphonique"],
-        comment: "",
-        category:["béton/fonte"]
-    },
-    {
         ic: 144,
         imgs: ["ic/144_cardre_fonte.webp"],
         name: "Cadre et tampon",
@@ -157,6 +157,36 @@ const ICs: IC[] = [
         key_words: ["cadre", "tampon", "fonte", "couvercle", "tampon fonte", "cadre tampon"],
         comment: "",
         category:["béton/fonte"]
+    },
+    {
+        ic: 1,
+        imgs: ["ic/0_pvc_pression.webp"],
+        name: "Tube PVC Pression",
+        content: ["Tube PVC-U Pression"],
+        dialects: "",
+        key_words: ["tube", "pression", "PVC-U", "haute pression", "préssion"],
+        comment: "",
+        category:['tube']
+    },
+    {
+        ic: 0,
+        imgs: ["ic/tube_pvc_cr8_joint.webp"],
+        name: "Tube PVC CR8 à joint",
+        content: ["CR8 à joint"],
+        dialects: "",
+        key_words: ["tube", "CR8", "à joint", "a joint", "assainissement", "sans colle"],
+        comment: "",
+        category:['tube']
+    },
+    {
+        ic: 312,
+        imgs: ["ic/312_tube_ecopal.webp"],
+        name: "Tube ECOPAL",
+        content: ["Tube ECOPAL"],
+        dialects: "Tube annelé, ECOPAL,",
+        key_words: ["tube", "ecopal", "annele", "annelé"],
+        comment: "Longueur : 6m",
+        category:['tube']
     },
     {
         ic: 133,
@@ -226,9 +256,9 @@ const ICs: IC[] = [
     },
     {
         ic: 2766,
-        imgs: ["ic/2766_cr8.webp"],
+        imgs: ["ic/2766_cr8.webp", "ic/2763_tube_cr8_bleu.webp"],
         name: "Tube CR4/CR8",
-        content: ["Tubes"],
+        content: ["Tube CR8 bleu (à joint)", "Tube CR4/8 à coller"],
         dialects: "assainissement, CR4, CR8",
         key_words: ["tube", "CR4", "CR8", "assainissement", "evacuation", "évacuation"],
         comment: "",

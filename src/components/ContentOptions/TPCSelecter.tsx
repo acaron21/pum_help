@@ -106,7 +106,7 @@ export default function TPCSelecter() {
   );
 
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-start text-xl">
       <p className="w-full bg-blue-primary text-white font-bold text-center">Sélection couronne TPC</p>
       <div className="w-full bg-blue-light flex flex-row items-center gap-5">
         <img
