@@ -179,7 +179,7 @@ export default function WherePage(){
                             <div className="bg-blue-primary text-white text-2xl font-bold px-3 py-1 rounded-md">{selectedZone}</div>
                             }
                             {selectedArticle &&
-                            <div className="flex flex-col gap-3 items-start  p-5">
+                            <div className="flex flex-col gap-1 md:gap-3 items-start  p-1 md:p-5">
 
                                 <div className="flex items-center gap-3">
                                     <p className="bg-blue-primary text-white text-2xl font-bold px-3 py-1 rounded-md">{selectedArticle.ref}</p>
