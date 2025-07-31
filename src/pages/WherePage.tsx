@@ -3,6 +3,9 @@ import ArticleCard from "../components/ArticleCard"
 import MainPlan from "../components/plan/MainPlan"
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import { getProductData, refreshProductData } from "../scripts/sheetService";
+import type { ProductEntry } from "../scripts/sheetService";
+
 
 type Article = {
   id: number;
@@ -127,9 +130,24 @@ export default function WherePage(){
     const [selectedZones, setSelectedZones] = useState<number[]>([]);
     const [searchInput, setSearchInput] = useState<string>("");
     const [filteredArticles, setFilteredArticles] = useState<Article[]>([])
-
     const [reveal, setReveal] = useState(false);
 
+    // DATA FOR ZONES
+    const [data, setData] = useState<ProductEntry[] | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        getProductData()
+        .then((res) => setData(res))
+        .catch((err) => {
+            console.error(err);
+            setError('Erreur lors du chargement des données.');
+            console.log("pas bon")
+        })
+        .finally(() => setLoading(false));
+    }, []);
+    
     useEffect(() => {
     const delayDebounce = setTimeout(() => {
       const searchTerms = searchInput.toLowerCase().trim().split(/\s+/);
@@ -214,7 +232,7 @@ export default function WherePage(){
                 <div className="flex flex-row justify-center  top-0 bg-white/70 backdrop-blur-md p-4">
                     <div className="flex items-center gap-2 bg-blue-light p-3 rounded-[50px] md:w-[70%] w-full">
                         <svg className={clsx("transition duration-300", (searchInput !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
-                        <input ref={inputRef} value={searchInput} onChange={(e)=>setSearchInput(e.target.value)} className="flex-1 outline-0 text-xl" type="text" placeholder="Rechercher (produit, couleur, fonction, marque...)"/>
+                        <input ref={inputRef} value={searchInput} onChange={(e)=>setSearchInput(e.target.value)} className="flex-1 outline-0 text-xl" type="text" placeholder="Code article / code zone"/>
                         
                         {/* cross (delete) */}
                         
@@ -239,7 +257,7 @@ export default function WherePage(){
                 </div>
 
                 {/* Articles */}
-                <div className="relative grid grid-cols-3 gap-3 md:flex md:items-start md:flex-wrap md:justify-start px-2 overflow-y-auto">
+                {/* <div className="relative grid grid-cols-3 gap-3 md:flex md:items-start md:flex-wrap md:justify-start px-2 overflow-y-auto">
                 {filteredArticles.map(art => (
                     <ArticleCard
                     sm={false}
@@ -250,7 +268,7 @@ export default function WherePage(){
                     img_src={art.img}
                     />
                 ))}
-                </div>
+                </div> */}
             </div>
 
             {/* PLAN */}

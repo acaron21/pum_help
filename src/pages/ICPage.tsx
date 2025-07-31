@@ -523,7 +523,8 @@ export default function ICPage(){
         <div className="flex flex-col h-full bg-blue-light">
             {/* Research */}
                 <div className="flex flex-row items-center justify-start gap-3 top-0 w-full bg-white backdrop-blur-md p-4">
-                    <svg onClick={()=>reset()} className="fill-blue-primary cursor-pointer hover:fill-blue-dark transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M4 19v-9q0-.475.213-.9t.587-.7l6-4.5q.525-.4 1.2-.4t1.2.4l6 4.5q.375.275.588.7T20 10v9q0 .825-.588 1.413T18 21h-3q-.425 0-.712-.288T14 20v-5q0-.425-.288-.712T13 14h-2q-.425 0-.712.288T10 15v5q0 .425-.288.713T9 21H6q-.825 0-1.412-.587T4 19"/></svg>
+                    <svg onClick={()=>reset()} className="hidden md:block fill-blue-primary cursor-pointer hover:fill-blue-dark transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M4 19v-9q0-.475.213-.9t.587-.7l6-4.5q.525-.4 1.2-.4t1.2.4l6 4.5q.375.275.588.7T20 10v9q0 .825-.588 1.413T18 21h-3q-.425 0-.712-.288T14 20v-5q0-.425-.288-.712T13 14h-2q-.425 0-.712.288T10 15v5q0 .425-.288.713T9 21H6q-.825 0-1.412-.587T4 19"/></svg>
+                    
                     <div className="flex items-center gap-2 bg-blue-light p-3 rounded-[50px] md:w-[40%] w-full">
                         <svg className={clsx("transition duration-300", (searchInput !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
                         <input ref={inputRef} value={searchInput} onChange={(e)=>setSearchInput(e.target.value)} className="flex-1 outline-0 text-xl" type="text" placeholder="Rechercher (contenu de l'IC, nom, produit, ...)"/>
@@ -547,10 +548,13 @@ export default function ICPage(){
                         }
                         </AnimatePresence>
                    </div>
-                    <CategoryFilter
-                    selected={selectedCategory}
-                    onChange={setSelectedCategory}
-                    />        
+                   <div className="hidden md:block">
+                        <CategoryFilter
+                        selected={selectedCategory}
+                        onChange={setSelectedCategory}
+                        />   
+                   </div>
+                         
                 </div>
                         
                 <div className="flex-1 flex flex-col gap-3 overflow-auto px-1 md:px-8 md:py-3">

@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation"
 import ICPage from "./pages/ICPage"
 import HowPage from "./pages/HowPage"
 import MAJPage from "./pages/MAJPage"
+import WherePage2 from "./pages/WherePage2"
 
 
 
@@ -20,7 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/ic" replace />} />
             <Route path="/how" element={<HowPage />} />
-            <Route path="/where" element={<WherePage />} />
+            <Route path="/where" element={<WherePage2 />} />
             <Route path="/ic" element={<ICPage />} />
             <Route path="/maj" element={<MAJPage />} />
           </Routes>

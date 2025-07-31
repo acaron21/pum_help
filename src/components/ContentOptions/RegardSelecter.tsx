@@ -110,6 +110,8 @@ import { useEffect, useState } from "react";
 import CustomSelect from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
 import ScannableBarcode from "../utils/ScannableBarcode";
+import clsx from "clsx";
+import ToggleOuiNon from "../utils/ToggleOuiNon";
 
 type Option = {
   label: string;
@@ -156,9 +158,12 @@ export default function RegardSelecter(){
             {/* FOND */}
             <div className="bg-blue-light pb-2">
                 <div className="p-2 bg-blue-primary text-white font-bold">Fond</div>
-                    <div className="grid grid-cols-[1fr_1fr] items-center text-center pb-4">
+                    <div className={clsx("grid grid-cols-[1fr_1fr] items-center text-center pb-4")}>
                         <div className="p-2 pb-0 text-lg">D. Intérieur</div>
+
                         <div className="p-2 pb-0 text-lg" >D. Exterieur</div>
+
+                        
 
                         <div className="p-2 pt-0">
                             <CustomSelect
@@ -169,7 +174,9 @@ export default function RegardSelecter(){
                             placeholder="---"
                             />
                         </div>
+
                         {diamExt && <p className="p-2 pt-0 ">{diamExt}x{diamExt}</p>}
+
                     </div>
                 <div className="px-2 flex flex-col gap-2 items-center">
                     {diamSelected && <CopyLabel text={fonds.filter(f=>f.diam_int===diamSelected.value)[0].code_pum+""}></CopyLabel>}
