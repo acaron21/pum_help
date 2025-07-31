@@ -4,7 +4,6 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { getProductData } from "../scripts/sheetService";
 import type { ProductEntry } from "../scripts/sheetService";
-import { div, p } from "framer-motion/client";
 
 
 
@@ -22,8 +21,6 @@ export default function WherePage(){
 
     // DATA FOR ZONES
     const [data, setData] = useState<ProductEntry[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     const [result, setResult] = useState(true);
     const [selectedZone, setSelectedZone]= useState<string | null>(null);
@@ -37,10 +34,8 @@ export default function WherePage(){
         .then((res) => setData(res))
         .catch((err) => {
             console.error(err);
-            setError('Erreur lors du chargement des données.');
             console.log("Erreur lors du chargement des données.")
         })
-        .finally(() => setLoading(false));
     }, []);
     
     // Enter
