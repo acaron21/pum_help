@@ -79,6 +79,10 @@ export default function WherePage(){
                 )
             }
         }
+
+        if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            inputRef.current?.blur();
+            }
     }
   };
 
