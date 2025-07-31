@@ -111,7 +111,6 @@ import CustomSelect from "../utils/CustomSelect";
 import CopyLabel from "../utils/CopyLabel";
 import ScannableBarcode from "../utils/ScannableBarcode";
 import clsx from "clsx";
-import ToggleOuiNon from "../utils/ToggleOuiNon";
 
 type Option = {
   label: string;
