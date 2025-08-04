@@ -352,7 +352,7 @@ type MainPlanProps = {
 
 export default function MainPlan(props: MainPlanProps){
     return(
-        <div className=" h-full flex">
+        <div className="h-full flex">
         <svg className="h-full" viewBox="0 0 626 909" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
             <g clip-path="url(#clip0_12_20)">
                 <line className="stroke-blue-dark" x1="431" y1="909" x2="431" y2="738" stroke-width="6"/>
