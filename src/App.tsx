@@ -2,7 +2,6 @@ import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
 import Navigation from "./components/Navigation"
 import ICPage from "./pages/ICPage"
 import HowPage from "./pages/HowPage"
-import MAJPage from "./pages/MAJPage"
 import WherePage2 from "./pages/WherePage2"
 import TcodePage from "./pages/TcodePage"
 

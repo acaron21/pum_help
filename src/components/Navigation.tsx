@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { div, svg } from "framer-motion/client";
 import { useState, type ReactElement } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 

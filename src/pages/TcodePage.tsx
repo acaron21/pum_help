@@ -1,4 +1,3 @@
-import { div } from "framer-motion/client";
 import { useEffect, useReducer, useState } from "react";
 import { getProductData, type ProductEntry } from "../scripts/sheetService";
 import LabelPdfButton from "../components/utils/LabelPdfButton";
@@ -53,11 +52,6 @@ export default function TcodePage(){
 
         dispatch({type:"ADD", payload: {id: newId, code: "", name:""}})
 
-    }
-
-    const handleValidate = () =>{
-        // console.log(items)
-        console.log(data)
     }
 
     // get data (from sheet/cache)
