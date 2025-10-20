@@ -4,6 +4,7 @@ import ICPage from "./pages/ICPage"
 import HowPage from "./pages/HowPage"
 import MAJPage from "./pages/MAJPage"
 import WherePage2 from "./pages/WherePage2"
+import TcodePage from "./pages/TcodePage"
 
 
 
@@ -22,7 +23,7 @@ function App() {
             <Route path="/how" element={<HowPage />} />
             <Route path="/where" element={<WherePage2 />} />
             <Route path="/ic" element={<ICPage />} />
-            <Route path="/maj" element={<MAJPage />} />
+            <Route path="/etiquettes" element={<TcodePage />} />
           </Routes>
         </div>
         
