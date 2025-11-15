@@ -1,5 +1,10 @@
 import React from 'react';
 
+// ==== UTILS : Color selector
+// 
+//  This component aims to select a color.
+// 
+
 export type Color = {
   id: string;
   hex: string;

@@ -9,6 +9,11 @@ import PVCUSelecter from "./ContentOptions/PVCUSelecter"
 import EcopalSelecter from "./ContentOptions/ECOPALSelecter"
 import CR8Selecter from "./ContentOptions/CR8Selecter"
 
+
+// ==== Switch to know which Custom Selector show in the IC modal. See all specific selector in the folder : ./ContentOptions/
+// 
+
+
 export default function ICContentOptions(props: {ic:number}){
 
 

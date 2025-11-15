@@ -8,8 +8,10 @@ import MobileKeypad from "../components/utils/MobileKeypad";
 
 
 
-
-
+// ==== Where page : show on a plan where all Article are (by code)
+// 
+// Type a code => search in database => show the location
+// Same for zone Names
 
 
 export default function WherePage(){
@@ -103,7 +105,7 @@ export default function WherePage(){
 
     const delayDebounce = setTimeout(() => {
         searchCode();
-      }, 300); // délai de debounce en ms
+      }, 300); // delay
 
       return () => clearTimeout(delayDebounce);
 

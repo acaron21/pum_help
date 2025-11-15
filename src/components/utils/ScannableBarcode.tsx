@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import Barcode from 'react-barcode';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// ==== UTILS : Scanable barcode
+// 
+//  Show a barcode, add an overlay when click on it.
+// 
+
 interface ScannableBarcodeProps {
   value: string;
 }

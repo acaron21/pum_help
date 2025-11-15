@@ -1,6 +1,8 @@
 import Papa from 'papaparse';
 import type { ParseResult } from 'papaparse';
 
+// ==== Service to load / cache the data (csv in google sheets - public API)
+// 
 
 // === CONFIGURATION ===
 
@@ -83,7 +85,7 @@ async function fetchSheetData(): Promise<ProductEntry[]> {
             ref: row['Ref article']?.trim() ?? '',
             label: row['Désignation article']?.trim() ?? '',
           }))
-          .filter((entry) => entry.zone && entry.ref); // facultatif : on ignore les lignes incomplètes
+          .filter((entry) => entry.zone && entry.ref);
 
         resolve(filtered);
       },
@@ -96,10 +98,10 @@ async function fetchSheetData(): Promise<ProductEntry[]> {
   });
 }
 
-// === API PUBLIQUE ===
+// === Public API ===
 
 /**
- * Récupère les données produits depuis le cache ou Google Sheets si cache vide/expiré.
+ * Retrieves product data from the cache or Google Sheets if the cache is empty/expired.
  */
 export async function getProductData(): Promise<ProductEntry[]> {
   const cached = getCache();
@@ -115,7 +117,7 @@ export async function getProductData(): Promise<ProductEntry[]> {
 }
 
 /**
- * Force le rafraîchissement des données depuis Google Sheets (ignore le cache).
+ * Forces data refresh from Google Sheets (ignores cache).
  */
 export async function refreshProductData(): Promise<ProductEntry[]> {
   console.info('[SheetService] Rafraîchissement manuel des données...');

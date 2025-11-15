@@ -4,6 +4,11 @@ import { useState, type ReactElement } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 
+
+// ==== NavBar (Mobile + Desktop)
+// 
+
+
 type NavButtonProps = {
   to: string;
   label: string;
@@ -46,8 +51,11 @@ export default function Navigation(){
         <svg className={clsx(isVisible? "fill-white" : "fill-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 20 20"><path d="M16.4 9H3.6c-.552 0-.6.447-.6 1s.048 1 .6 1h12.8c.552 0 .6-.447.6-1s-.048-1-.6-1m0 4H3.6c-.552 0-.6.447-.6 1s.048 1 .6 1h12.8c.552 0 .6-.447.6-1s-.048-1-.6-1M3.6 7h12.8c.552 0 .6-.447.6-1s-.048-1-.6-1H3.6c-.552 0-.6.447-.6 1s.048 1 .6 1"/></svg>
       </div>
 
-      {/* Menu desktop toujours visible */}
+      {/* Desktop Menu */}
       <div className="hidden md:flex md:flex-row md:items-center md:gap-2 md:text-xl">
+
+
+        {/* TODO - Specific Menu to show the internal Process for a new employee */}
 
         {/* <NavButton svg={<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 26 26"><path d="M6.707 8.707a1 1 0 0 1-1.32.083l-.094-.083l-3-3a1 1 0 0 1-.083-1.32l.083-.094l3-3a1 1 0 0 1 1.32-.083l.094.083L9.415 4h9.54l.22.005a5.045 5.045 0 0 1 0 10.08l-.22.004l-2.629-.001l-2.619 2.62a1 1 0 0 1-1.32.082l-.094-.083l-2.62-2.619H6.956l-.174.006a2.956 2.956 0 0 0 0 5.901l.174.005H19v-2c0-.852.986-1.297 1.623-.783l.084.076l3 3a1 1 0 0 1 .083 1.32l-.083.094l-3 3c-.602.603-1.614.22-1.701-.593L19 24v-2H6.956l-.215-.005a4.956 4.956 0 0 1 0-9.902l.215-.004l2.54-.001l2.797-2.795a1 1 0 0 1 1.32-.083l.094.083l2.796 2.795h2.453l.178-.004a3.045 3.045 0 0 0 0-6.079L18.956 6H9.414z"/></svg>} 
         setVisible={setVisible} to="/how" label="Comment on fait ?" /> */}
@@ -62,7 +70,7 @@ export default function Navigation(){
         setVisible={setVisible} to="/etiquettes" label="Etiquettes" />
       </div>
 
-      {/* Menu mobile animé */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isVisible && (
           <motion.div

@@ -1,7 +1,11 @@
-// LabelPdfButton.tsx
-
 import { jsPDF } from "jspdf";
 import JsBarcode from "jsbarcode";
+
+
+// ==== UTILS : Create a simple PDF for item labels
+// 
+//  This custom button will create a pdf with the item labels given in the props.
+// 
 
 
 type Item = {id: number, code: string, name: string};
@@ -9,19 +13,19 @@ type Props = { items: Item[]; filename?: string };
 
 export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: Props) {
   const generatePdf = async () => {
-    // ---- Page & grille ----
-    const pageW = 210; // A4 (mm)
+    // ---- Page & grid ----
+    const pageW = 210; // A4
     const pageH = 297;
     const marginX = 10;
     const marginY = 10;
     const cols = 3;
     const rows = 7;
 
-    // Espacement entre étiquettes (padding externe entre cases)
+    // Spacing between labels (external padding between cells)
     const cellSpacingX = 2; // mm
     const cellSpacingY = 2; // mm
 
-    // Zone utile (hors marges + espaces inter-cellules)
+    // Usable area (excluding margins + inter-cell spaces)
     const innerW = pageW - marginX * 2 - cellSpacingX * (cols - 1);
     const innerH = pageH - marginY * 2 - cellSpacingY * (rows - 1);
 
@@ -30,23 +34,23 @@ export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: P
 
     const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
 
-    // ---------- rendu d’une étiquette ----------
+    // ---------- rendering of a label ----------
     const drawLabel = async (a: Item, x: number, y: number, w: number, h: number) => {
-      const pad = 3;                         // padding interne
+      const pad = 3;                         // internal padding
       const centerX = x + w / 2;
       const contentW = w - pad * 2;
 
-      // Réglages typographiques / espacements
+      // Typographic settings / spacing
       const titleFontSize = 10;
-      const titleLineHeight = 4;             // mm par ligne de désignation
-      const titleTopOffset = 2;              // mm sous le bord haut
-      const gapTitleToBarcode = 2;           // espace Titre → Code-barres
-      const gapBarcodeToCode = 2;            // espace Code-barres → Code article
-      const codeBottomReserve = 5;           // réserve basse pour le code article
-      const minBarcodeHeight = 10;           // hauteur mini lisible du code-barres (mm)
-      const maxTitleLines = 3;               // on limite 2–3 lignes max
+      const titleLineHeight = 4;             // mm by designation line
+      const titleTopOffset = 2;              // mm under the high edge
+      const gapTitleToBarcode = 2;           // Title space → Barcode
+      const gapBarcodeToCode = 2;            // Barcode area → Item code
+      const codeBottomReserve = 5;           // low reserve for the item code
+      const minBarcodeHeight = 10;           // minimum readable height of the barcode (mm)
+      const maxTitleLines = 3;               // We limit it to 2–3 lines max
 
-      // 1) Titre (wrap multi-lignes centré, avec limite de lignes)
+      // 1) Title (centered multi-line wrap, with line limit)
       doc.setFont("helvetica", "bold");
       doc.setFontSize(titleFontSize);
 
@@ -54,12 +58,12 @@ export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: P
       let titleLines = wrapTextWithMaxLines(doc, a.name, contentW, maxTitleLines);
       let titleBlockHeight = titleLines.length * titleLineHeight;
 
-      // 2) Calcul de l’espace dispo pour le code-barres (sans jamais toucher à la zone du code article)
+      // 2) Calculation of the available space for the barcode (without ever touching the item code area)
       let barcodeTopY = titleYStart + titleBlockHeight + gapTitleToBarcode;
       const bottomLimitY = y + h - pad - codeBottomReserve - gapBarcodeToCode;
       let barcodeHeight = bottomLimitY - barcodeTopY;
 
-      // Si pas assez d’espace, réduire le titre à 2 lignes puis, en dernier recours, réduire le code-barres
+      // If there is not enough space, reduce the title to 2 lines and, as a last resort, reduce the size of the barcode.
       if (barcodeHeight < minBarcodeHeight) {
         if (titleLines.length > 2) {
           const tighterLines = wrapTextWithMaxLines(doc, a.name, contentW, 2);
@@ -73,21 +77,21 @@ export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: P
             barcodeTopY = tighterBarcodeTopY;
             barcodeHeight = tighterHeight;
           } else {
-            barcodeHeight = Math.max(4, tighterHeight); // dernier recours
+            barcodeHeight = Math.max(4, tighterHeight); 
           }
         } else {
-          barcodeHeight = Math.max(4, barcodeHeight);   // dernier recours
+          barcodeHeight = Math.max(4, barcodeHeight);
         }
       }
 
-      // 3) Rendu du titre centré
+      // 3) Centered title rendering
       let currentY = titleYStart;
       for (const line of titleLines) {
         doc.text(line, centerX, currentY, { align: "center" });
         currentY += titleLineHeight;
       }
 
-      // 4) Rendu du code-barres dans l’espace calculé
+      // 4) Rendering the barcode in the calculated space
       const barcodeWidthMM = contentW;
       const dataUrl = await renderCode128AsDataURL(a.code, {
         widthPx: mmToPx(barcodeWidthMM, 300),
@@ -105,16 +109,11 @@ export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: P
         "FAST"
       );
 
-      // 5) Code article (réservé en bas, jamais chevauché)
+      // 5) Item code (reserved at the bottom, never overlapped)
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       const codeTextY = y + h - pad - 2;
       doc.text(a.code, centerX, codeTextY, { align: "center" });
-
-      // (option découpe) :
-      // doc.setDrawColor(200);
-      // doc.setLineWidth(0.1);
-      // doc.rect(x, y, w, h);
     };
 
     // ---------- pagination & placement grille ----------
@@ -144,7 +143,7 @@ export default function LabelPdfButton({ items, filename = "etiquettes.pdf" }: P
 
 /* ===================== Utils ===================== */
 
-/** Convertit des mm en px à la résolution donnée (ex : 300 DPI pour impression nette). */
+/** Converts mm to px at the given resolution (e.g., 300 DPI for sharp printing). */
 function mmToPx(mm: number, dpi = 300) {
   const inch = mm / 25.4;
   return Math.max(1, Math.floor(inch * dpi));
@@ -192,12 +191,12 @@ function wrapTextWithMaxLines(
   // Pousse une ligne, et si c'est la dernière, tronque proprement si nécessaire
   const pushOrTrimLast = (line: string) => {
     if (fits(line)) return lines.push(line);
-    // Tronque par mots
+    // Truncated by words
     let cut = line;
     while (!fits(cut) && cut.includes(" ")) {
       cut = cut.replace(/\s+\S+$/, "");
     }
-    // Si un mot unique dépasse, tronque caractère par caractère
+    // If a single word exceeds the limit, truncate character by character.
     while (!fits(cut) && cut.length > 0) {
       cut = cut.slice(0, -1);
     }
@@ -210,7 +209,7 @@ function wrapTextWithMaxLines(
       current = test;
     } else {
       if (lines.length + 1 >= maxLines) {
-        // Dernière ligne : on pousse tronquée et on arrête
+        // Last line: we push, truncated, and we stop
         pushOrTrimLast(test);
         return lines;
       } else {
@@ -218,7 +217,7 @@ function wrapTextWithMaxLines(
           lines.push(current);
           current = word;
         } else {
-          // Le mot seul ne tient pas -> on le tronque brutalement en dernière ligne
+          // The word alone doesn't hold up -> it's abruptly truncated in the last line
           if (lines.length + 1 >= maxLines) {
             pushOrTrimLast(word);
             return lines;

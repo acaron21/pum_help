@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 
+
+// ==== UTILS : CopyLabel
+// 
+//  This component create a copyable label, with animation.
+//  Only need to click on the label to copy it
+// 
+
+
 type CopyLabelProps = {
   text: string;
 };

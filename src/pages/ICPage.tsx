@@ -3,6 +3,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import ICCard from "../components/ICCard";
 
+
+
+// ==== IC page
+// 
+// Show the list of ICs
+// Search with terms, IC code, Dialects, etc
+// Filter by simple categories ("tube", "couronne", "béton/fonte")
+
+
 type CategoryFilterProps = {
   selected: string | null;
   onChange: (selected: string | null) => void;
@@ -13,9 +22,9 @@ const CATEGORIES = ["tube", "couronne", "béton/fonte"];
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ selected, onChange }) => {
   const handleClick = (category: string) => {
     if (selected === category) {
-      onChange(null); // déselection
+      onChange(null);
     } else {
-      onChange(category); // sélection unique
+      onChange(category);
     }
   };
 
@@ -40,9 +49,6 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ selected, onChange }) =
     </div>
   );
 };
-
-
-
 
 export type IC = {
     ic: number;

@@ -5,6 +5,10 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 
+// ==== Article card when we click on a ICs in the menu "code IC ?"
+// 
+// Open a card with specific information about the IC, and for some, open a specific selector (ex: Chambres télécoms).
+
 
 export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
     console.log(props.ic.ic)
@@ -43,6 +47,7 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                    <div className="mb-auto p-4">
                         
                         {/* Options */}
+                        {/* We open a specific select menu, or specifics item codes regarding the IC (See the ICContentOptions component) */}
                         <ICContentOptions ic={props.ic.ic}/>
 
                         {/* comments */}
@@ -68,6 +73,12 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
 }
 
 const listOfTools = [117, 67, 116, 843, 842, 2766, 1, 0, 312];
+
+
+// ==== IC Item in the "code IC ?" menu
+// 
+// When right click on it: copy the IC code.
+// When left click on it: open the InfoModal corresponding.
 
 export default function ICCard(props: IC){
 
@@ -95,9 +106,9 @@ export default function ICCard(props: IC){
     return (
         <>
         <div
-        onContextMenu={handleCopy}
-        onClick={handleRightClick}
-        className={clsx("relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md   bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer",
+            onContextMenu={handleCopy}
+            onClick={handleRightClick}
+            className={clsx("relative flex flex-row gap-3 items-center px-2 py-3 md:py-1 w-full shadow-md   bg-white rounded-md transform transition duration-300 hover:bg-blue-100 hover:scale-101 hover:z-10 cursor-pointer",
             listOfTools.includes(props.ic) ? "border-blue-primary border-1" : "border-1 border-blue-light"
         )}>
             

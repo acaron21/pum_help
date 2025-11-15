@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+// ==== UTILS : Custom selector
+// 
+//  Selector that can show icons in the dropdown
+// 
+
 export type Option = {
   label: string;
   value: string | number;
@@ -32,7 +37,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     setIsOpen(false);
   };
 
-  // Ferme le dropdown si clic en dehors
+  // Close dropdown when click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -43,11 +48,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Calcule la hauteur disponible en dessous du select
+  // Calculate the maximum height under the selector (to create scrollbar)
   useEffect(() => {
     if (isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom - 10; // 10px de marge
+      const spaceBelow = window.innerHeight - rect.bottom - 10;
       setMaxHeight(spaceBelow);
     }
   }, [isOpen]);

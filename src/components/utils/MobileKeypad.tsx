@@ -1,6 +1,11 @@
 import React from "react";
 import clsx from "clsx";
 
+// ==== UTILS : Keyboard for mobile (for searching code in "Ca va ou")
+// 
+//  
+// 
+
 interface MobileKeypadProps {
     searchInput: string;
     setSearchInput: React.Dispatch<React.SetStateAction<string>>;
@@ -60,7 +65,7 @@ const MobileKeypad: React.FC<MobileKeypadProps> = ({
         </div>
 
         <div className="flex gap-2 items-start">
-                    {/* Supprimer */}
+                    {/* delete */}
           <button
             onClick={handleBackspace}
             className={clsx(
@@ -84,7 +89,7 @@ const MobileKeypad: React.FC<MobileKeypadProps> = ({
             0
           </button>
 
-          {/* Valider */}
+          {/* validate */}
           <button
             onClick={handleValidate}
             className={clsx(
@@ -97,7 +102,7 @@ const MobileKeypad: React.FC<MobileKeypadProps> = ({
             </button>
         </div>
 
-        {/* Lettres */}
+        {/* letters */}
         <div className="grid grid-cols-4 gap-2">
           {letterRow.map((letter, index) => (
             <button

@@ -2,6 +2,13 @@ import { useEffect, useReducer, useState } from "react";
 import { getProductData, type ProductEntry } from "../scripts/sheetService";
 import LabelPdfButton from "../components/utils/LabelPdfButton";
 
+
+// ==== Page for generate Item labels in a PDF file
+// 
+// Type code => search in sheet if the code exists, then get the label of the article
+// 
+
+
 type Item = {id: number, code: string, name: string};
 
 type Action = 
