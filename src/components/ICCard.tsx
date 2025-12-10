@@ -1,9 +1,88 @@
 import ICContentOptions from "./ICContentOptions";
 
 import type { IC } from "../pages/ICPage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
+import { getCompatibleProduct } from "../scripts/api/getProducts";
+
+// POC --> Print compatible article with PVC
+export interface Product {
+  id: number;
+  label: string;
+  courbure?: number; // facultatif
+}
+
+export interface CategoryData {
+  category: string;
+  products: Product[];
+}
+
+interface TabsByCategoryProps {
+  data: CategoryData[];
+  loading: boolean;
+}
+
+export function TabsByCategory({ data, loading }: TabsByCategoryProps) {
+
+    const [active, setActive] = useState<string>(data[0]?.category ?? "");
+    
+    const activeCategory = data.find(d => d.category === active);
+
+    const [selectedCode, setSelectedCode] = useState(0);
+
+    useEffect(()=>{
+        if(!loading){
+            setActive(data[0].category)
+        }
+        // 
+    }, [loading])
+
+    return (
+        <>
+        <div className="z-50 h-full flex flex-row">
+            
+
+            {/* Articles */}
+            <div className="  flex flex-row items-center">
+                
+                <div className="bg-blue-50">{selectedCode}</div>
+
+                <div className="h-full overflow-y-auto bg-white">
+                    <table className="self-start  ">
+
+                        <tbody className="select-none">
+                            {(activeCategory?.products ?? []).map(p => (
+                                <tr className="hover:bg-blue-semi-light transition" onClick={()=>{setSelectedCode(p.id)}}>
+                                
+                                    <td className="">
+                                        <div className="font-semibold px-4">{p.id}</div>
+                                    </td>
+                                    <td className="">
+                                        <div className="px-2 py-3">{p.label}</div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                
+                
+            </div>
+
+            {/* Category */}
+            <div className="bg-blue-primary h-full flex flex-col">
+                
+                {data.map((cat)=>(
+                    <div className={clsx("p-3 text-center text-xl select-none text-white transition", cat.category === active ? "bg-blue-dark/30" : "hover:bg-blue-dark/30")}
+                    onClick={()=>{setActive(cat.category)}}
+                    >{cat.category}</div>
+                ))}
+            </div>
+        </div>
+    </>
+  );
+}
 
 // ==== Article card when we click on a ICs in the menu "code IC ?"
 // 
@@ -11,7 +90,29 @@ import clsx from "clsx";
 
 
 export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
-    console.log(props.ic.ic)
+    
+    // Compatibles products with categories
+    // POC pour pvc evac à coller
+    const [diam, setDiam] = useState<number>(100);
+    const [compatibleProducts, setCompatibleProducts] = useState<CategoryData[]>([]);
+    const [showCompatibleProducts, setShowCompatibleProducts] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // Load data each time we change diam (ONLY FOR IC 117 --> PROTOTYPE)
+    useEffect(()=>{
+        const loadData = async ()=>{
+            console.log("Loading compatible product with : " + diam)
+            const res = await getCompatibleProduct(diam);
+            setCompatibleProducts(res)
+            setLoading(false)
+            console.log(res)
+        }
+        setLoading(true)
+        if(props.ic.ic === 117){
+            loadData();
+        }
+    }, [diam])
+
     return(
         
         <motion.div 
@@ -20,13 +121,31 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
             exit={{opacity:0}}
             transition={{duration:0.2}}
             onClick={()=>{props.setShowInfoModal(false)}} 
-            className="hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
+            className="hidden overflow-hidden md:flex items-center justify-center absolute z-1000 top-0 left-0 h-screen w-screen bg-black/50">
+                
+                {/* ========== POC - Only for 117 (pvc)  ================= */}
+                <div>
+                    <div className={clsx("fixed top-0 left-0 w-screen h-screen z-30 bg-black/90 transition-opacity duration-300",
+                            showCompatibleProducts ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                    )}
+                    onClick={(e)=>{e.stopPropagation(); setShowCompatibleProducts(!showCompatibleProducts)}}
+                    >
+                        
+                    </div>
+                    <div onClick={(e)=>{e.stopPropagation()}} className={clsx("absolute top-0 right-0 z-40 h-screen transform transition", !showCompatibleProducts && "translate-x-[100%]")}>
+                        <TabsByCategory data={compatibleProducts} loading={loading}></TabsByCategory>
+                    </div>
+                </div>
+                
+
+                {/* ====================================================== */}
+
 
                 <div onClick={(e)=>e.stopPropagation()} className="bg-white w-[70%] min-h-[80%]  rounded-xl flex flex-col">
                    
                    {/* title */}
                    <div className="relative w-[100%] flex flex-row justify-center items-center gap-4 p-3 bg-blue-primary rounded-t-xl">
-                        <svg onClick={()=>props.setShowInfoModal(false)} className="fill-white cursor-pointer hover:fill-blue-dark transition absolute top-0 right-0 z-2000" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+                        <svg onClick={()=>props.setShowInfoModal(false)} className="fill-white cursor-pointer hover:fill-blue-dark transition absolute top-0 right-0 z-20" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
 
                         {props.ic.imgs.map(img=>(
                             <img key={img} src={`${import.meta.env.BASE_URL}/${img}`} alt="" className="object-contain w-[35px] h-[35px] md:w-[60px] md:h-[60px]"/>
@@ -44,14 +163,32 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                    </div>
 
                     {/* BODY */}
-                   <div className="mb-auto p-4">
+                   <div className="mb-auto p-4 flex flex-col flex-1">
                         
                         {/* Options */}
                         {/* We open a specific select menu, or specifics item codes regarding the IC (See the ICContentOptions component) */}
-                        <ICContentOptions ic={props.ic.ic}/>
+                        <ICContentOptions setDiam={setDiam} ic={props.ic.ic}/>
 
                         {/* comments */}
                         <span className="font-bold">Commentaires : </span><br /><p  className="whitespace-pre-line">{props.ic.comment}</p>
+                        
+                        
+                        {/* Open COMPATIBLE PRODUCTS */}
+                        <div className="mt-auto flex justify-end">
+                            {
+                                props.ic.ic == 117 &&
+                                <div className="">
+                                    <button >
+                                        {
+                                            loading
+                                            ? <p>Chargement...</p>
+                                            : <p onClick={()=>{setShowCompatibleProducts(!showCompatibleProducts)}}>Raccords</p>
+                                        }
+                                    </button>
+                                </div>
+                            }
+                            
+                        </div>
                     </div>
 
                     <div className="hidden md:flex gap-1 p-2">

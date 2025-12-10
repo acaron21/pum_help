@@ -14,7 +14,7 @@ import CR8Selecter from "./ContentOptions/CR8Selecter"
 // 
 
 
-export default function ICContentOptions(props: {ic:number}){
+export default function ICContentOptions(props: {ic:number, setDiam:React.Dispatch<React.SetStateAction<number>>}){
 
 
     return(
@@ -30,7 +30,7 @@ export default function ICContentOptions(props: {ic:number}){
             {
                 props.ic === 117 &&
                 <div className="flex flex-col">
-                    <PVCSelecter></PVCSelecter>
+                    <PVCSelecter setDiam={props.setDiam}></PVCSelecter>
                 </div>
             }
 

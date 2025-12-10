@@ -43,11 +43,18 @@ const tubes: Tube[] = [
 
 const firstOption: Option = { value: 100, label: "⌀100" };
 
-export default function PVCSelecter() {
+export default function PVCSelecter(props: {setDiam:React.Dispatch<React.SetStateAction<number>>}) {
   const [colorSelected, setColorSelected] = useState<Color | undefined>(colors[0]);
   const [diamSelected, setDiamSelected] = useState<Option | null>(firstOption);
   const [diamsOptions, setDiamOptions] = useState<Option[]>([]);
 
+  // Send diam to parent (FOR POC)
+  useEffect(()=>{
+    if(typeof(diamSelected?.value) === "number"){
+      props.setDiam(diamSelected?.value)
+    }
+
+  }, [diamSelected])
   useEffect(() => {
     // Récupérer les diamètres disponibles pour la couleur sélectionnée
     const filteredTubes = tubes.filter((t) => t.color.id === colorSelected?.id);
@@ -55,11 +62,13 @@ export default function PVCSelecter() {
       label: `⌀${t.diam}`,
       value: t.diam,
     }));
+    
     setDiamOptions(options);
 
     // Vérifier si le diamètre sélectionné est dispo, sinon prendre le premier dispo
     if (!filteredTubes.find((t) => t.diam === diamSelected?.value)) {
       setDiamSelected(options[0] || null);
+      props.setDiam(options[0].value)
     }
   }, [colorSelected]);
 
