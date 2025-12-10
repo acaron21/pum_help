@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { getCompatibleProduct } from "../scripts/api/getProducts";
+import ScannableBarcode from "./utils/ScannableBarcode";
 
 // POC --> Print compatible article with PVC
 export interface Product {
@@ -21,9 +22,11 @@ export interface CategoryData {
 interface TabsByCategoryProps {
   data: CategoryData[];
   loading: boolean;
+  onClose: ()=>void;
+  isOpen: boolean
 }
 
-export function TabsByCategory({ data, loading }: TabsByCategoryProps) {
+export function TabsByCategory({ data, loading, onClose, isOpen }: TabsByCategoryProps) {
 
     const [active, setActive] = useState<string>(data[0]?.category ?? "");
     
@@ -38,25 +41,46 @@ export function TabsByCategory({ data, loading }: TabsByCategoryProps) {
         // 
     }, [loading])
 
+    useEffect(()=>{
+        setSelectedCode(0)
+    }, [isOpen])
+
+    const handleClick = async (id: number) =>{
+        setSelectedCode(id);
+
+        try {
+            await navigator.clipboard.writeText(id.toString());
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    }
+    
+
     return (
         <>
-        <div className="z-50 h-full flex flex-row">
+        <div className="z-50 h-full flex flex-row" onClick={onClose}>
             
+            <div  className={clsx("self-center bg-white p-3 mr-5 rounded-md flex flex-col items-center border-5 border-blue-dark", selectedCode === 0 ? "opacity-0" : "opacity-100")}>
+                    
+                    <ScannableBarcode value={selectedCode + ""} />
+                    <p  className="text-xl font-semibold">{selectedCode}</p>
+                    <p className="text-green-700 font-bold italic">Copié !</p>
+            </div>
 
             {/* Articles */}
-            <div className="  flex flex-row items-center">
+            <div className=" flex flex-row items-center" onClick={(e)=>{e.stopPropagation()}}>
                 
-                <div className="bg-blue-50">{selectedCode}</div>
+                
 
                 <div className="h-full overflow-y-auto bg-white">
                     <table className="self-start  ">
 
                         <tbody className="select-none">
                             {(activeCategory?.products ?? []).map(p => (
-                                <tr className="hover:bg-blue-semi-light transition" onClick={()=>{setSelectedCode(p.id)}}>
+                                <tr className={clsx(" transition", selectedCode === p.id ? "bg-blue-dark text-white" : "hover:bg-blue-semi-light")} onClick={()=>{handleClick(p.id)}}>
                                 
                                     <td className="">
-                                        <div className="font-semibold px-4">{p.id}</div>
+                                        <div className={clsx("font-semibold px-4")}>{p.id}</div>
                                     </td>
                                     <td className="">
                                         <div className="px-2 py-3">{p.label}</div>
@@ -71,7 +95,7 @@ export function TabsByCategory({ data, loading }: TabsByCategoryProps) {
             </div>
 
             {/* Category */}
-            <div className="bg-blue-primary h-full flex flex-col">
+            <div className="bg-blue-primary h-full flex flex-col" onClick={(e)=>{e.stopPropagation()}}>
                 
                 {data.map((cat)=>(
                     <div className={clsx("p-3 text-center text-xl select-none text-white transition", cat.category === active ? "bg-blue-dark/30" : "hover:bg-blue-dark/30")}
@@ -133,7 +157,7 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                         
                     </div>
                     <div onClick={(e)=>{e.stopPropagation()}} className={clsx("absolute top-0 right-0 z-40 h-screen transform transition", !showCompatibleProducts && "translate-x-[100%]")}>
-                        <TabsByCategory data={compatibleProducts} loading={loading}></TabsByCategory>
+                        <TabsByCategory data={compatibleProducts} loading={loading} onClose={()=>{setShowCompatibleProducts(false)}} isOpen={showCompatibleProducts}></TabsByCategory>
                     </div>
                 </div>
                 
@@ -174,15 +198,20 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
                         
                         
                         {/* Open COMPATIBLE PRODUCTS */}
-                        <div className="mt-auto flex justify-end">
+                        <div className="mt-auto flex justify-end pr-10">
                             {
                                 props.ic.ic == 117 &&
-                                <div className="">
-                                    <button >
+                                <div  onClick={()=>{if(!loading){setShowCompatibleProducts(!showCompatibleProducts)}}} className="flex flex-col items-center bg-blue-semi-light/50 shadow select-none font-semibold hover:bg-blue-dark hover:text-white cursor-pointer transition rounded-xl aspect-square w-32">
+                                                                <img
+                                    src={`${import.meta.env.BASE_URL}coude_icon.webp`}
+                                    alt=""
+                                    className="object-contain w-[35px] h-[35px] md:w-[80px] md:h-[80px] p-2"
+                                    />
+                                    <button className="cursor-pointer">
                                         {
                                             loading
                                             ? <p>Chargement...</p>
-                                            : <p onClick={()=>{setShowCompatibleProducts(!showCompatibleProducts)}}>Raccords</p>
+                                            : <p>Raccords</p>
                                         }
                                     </button>
                                 </div>
@@ -210,7 +239,7 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
 }
 
 const listOfTools = [117, 67, 116, 843, 842, 2766, 1, 0, 312];
-
+const listOfCompatibleProducts = [117];
 
 // ==== IC Item in the "code IC ?" menu
 // 
@@ -278,6 +307,15 @@ export default function ICCard(props: IC){
             {
                 listOfTools.includes(props.ic) &&
                 <svg className="fill-blue-primary" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8"/><path d="M12.5 7H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
+            }
+
+            {
+                listOfCompatibleProducts.includes(props.ic) &&
+                <img
+                                    src={`${import.meta.env.BASE_URL}coude_icon.webp`}
+                                    alt=""
+                                    className="object-contain w-[45px] h-[45px] md:w-[45px] md:h-[45px]"
+                                    />
             }
 
             {/* dialects */}
