@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { div } from "framer-motion/client";
 import { useState } from "react";
 import ConnexionTool from "./Poc/connexions";
 import PathTool from "./Poc/path";

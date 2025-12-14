@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import CircularLoader from "../../components/utils/loader";
 import { getConnexions } from "../../scripts/api/getConnexions";
-import { div, p } from "framer-motion/client";
 
 type Article = {
     id: number,
