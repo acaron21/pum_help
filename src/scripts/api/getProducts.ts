@@ -9,7 +9,7 @@ function normalizeId(id: any) {
 
 export async function getCompatibleProduct(diam: number){
     console.log("diam : ", diam)
-    const res = await fetch(import.meta.env.VITE_API_URL + "/products", {
+    const res = await fetch(import.meta.env.VITE_API_URL + "/products/get-product-by-category", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

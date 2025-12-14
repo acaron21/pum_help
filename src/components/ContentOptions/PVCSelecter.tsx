@@ -25,6 +25,7 @@ const tubes: Tube[] = [
   { diam: 63, color: colors[0], codePum: 64767 },
   { diam: 75, color: colors[0], codePum: 64768 },
   { diam: 80, color: colors[0], codePum: 64769 },
+  { diam: 90, color: colors[0], codePum: 99999 },
   { diam: 100, color: colors[0], codePum: 64770 },
   { diam: 110, color: colors[0], codePum: 64771 },
   { diam: 125, color: colors[0], codePum: 64772 },
