@@ -1,5 +1,5 @@
 
-export async function getConnexions(code: number){
+export async function getConnexions(code: number | string){
 
     const res = await fetch(import.meta.env.VITE_API_URL + "/products/get-connexions", {
         method: "POST",

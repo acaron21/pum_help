@@ -5,7 +5,7 @@ import CircularLoader from "../../components/utils/loader";
 import { getConnexions } from "../../scripts/api/getConnexions";
 
 type Article = {
-    id: number,
+    id: number | string,
     label: string,
     courbure?: number
 }
@@ -58,7 +58,7 @@ export default function ConnexionTool(){
 
     const fetchConnexions = async (input:string) =>{
         setLoading(true);
-        const result = await getConnexions(parseInt(input))
+        const result = await getConnexions(input)
         setLoading(false)
 
         // no result
