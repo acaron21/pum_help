@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { getMaterialOptions } from "../../scripts/api/pathFetchs";
-import type { Option } from "../../components/utils/CustomSelect";
+// import type { Option } from "../../components/utils/CustomSelect";
 // import CustomSelect from "../../components/utils/CustomSelect";
 
 export default function connexionsTools(){
@@ -9,8 +9,8 @@ export default function connexionsTools(){
     // UI variables
     const [activeTab, setActiveTab] = useState("connexions") // connexions | articles
 
-    const [start_materials, set_start_materials] =  useState<Option[]>([]);
-    const [start_selected_material, set_start_selected_material] = useState<Option | null>(null)
+    // const [start_materials, set_start_materials] =  useState<Option[]>([]);
+    // const [start_selected_material, set_start_selected_material] = useState<Option | null>(null)
 
     useEffect(()=>{
         const test = async () =>{
