@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { div, tr } from "framer-motion/client";
 import { useEffect, useRef, useState } from "react";
 import type { Article } from "../../pages/Poc/connexions";
 

@@ -1,4 +1,4 @@
-import { div, option } from "framer-motion/client";
+
 import type { ConnexionAction, ConnexionState } from "../../pages/Poc/path";
 import clsx from "clsx";
 import { useEffect } from "react";

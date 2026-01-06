@@ -1,13 +1,10 @@
 import clsx from "clsx";
-import { useEffect, useReducer, useRef, useState } from "react";
-import { findPathWithArticles, findPathWithConnexions, getMaterialOptions } from "../../scripts/api/pathFetchs";
+import { useEffect, useReducer, useState } from "react";
+import { findPathWithArticles, findPathWithConnexions } from "../../scripts/api/pathFetchs";
 import ConnexionSelector from "../../components/utils/ConnexionSelector";
-import type { Option } from "../../components/utils/CustomSelect";
-import CustomSelect from "../../components/utils/CustomSelect";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import type { Article } from "./connexions";
 import CircularLoader from "../../components/utils/loader";
-import { div, path, td, tr } from "framer-motion/client";
 import ArticleSelector from "../../components/utils/ArticleSelector";
 import { fetchGetAllArticles } from "../../scripts/api/getProducts";
 import { getConnexions } from "../../scripts/api/getConnexions";
