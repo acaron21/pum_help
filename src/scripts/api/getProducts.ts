@@ -35,3 +35,17 @@ export async function getCompatibleProduct(diam: number){
 
     return normalized;
 }
+
+// Get all products for string searching
+export async function fetchGetAllArticles(){
+
+    const res = await fetch(import.meta.env.VITE_API_URL + "/products/get-all", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+        });
+    let data = await res.json();
+    
+    return data;
+}

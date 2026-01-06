@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useState } from "react";
 import ConnexionTool from "./Poc/connexions";
 import PathBeton from "./Poc/pathBeton";
-// import PathTool from "./Poc/path"
+import PathTool from "./Poc/path"
 
 
 export default function PoCPage(){
@@ -42,7 +42,7 @@ export default function PoCPage(){
                     activeTab === "MontageBeton" && <PathBeton></PathBeton>
                 }
                 {
-                    // activeTab === "Montage" && <PathTool></PathTool>
+                    activeTab === "Montage" && <PathTool></PathTool>
                 }
             </div>
         </div>

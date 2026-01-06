@@ -1,94 +1,793 @@
 import clsx from "clsx";
-import { useEffect, useState } from "react";
-import { getMaterialOptions } from "../../scripts/api/pathFetchs";
-// import type { Option } from "../../components/utils/CustomSelect";
-// import CustomSelect from "../../components/utils/CustomSelect";
+import { useEffect, useReducer, useRef, useState } from "react";
+import { findPathWithArticles, findPathWithConnexions, getMaterialOptions } from "../../scripts/api/pathFetchs";
+import ConnexionSelector from "../../components/utils/ConnexionSelector";
+import type { Option } from "../../components/utils/CustomSelect";
+import CustomSelect from "../../components/utils/CustomSelect";
+import { AnimatePresence, motion } from "framer-motion";
+import type { Article } from "./connexions";
+import CircularLoader from "../../components/utils/loader";
+import { div, path, td, tr } from "framer-motion/client";
+import ArticleSelector from "../../components/utils/ArticleSelector";
+import { fetchGetAllArticles } from "../../scripts/api/getProducts";
+import { getConnexions } from "../../scripts/api/getConnexions";
+
+import MontageResult from "../../components/utils/PathsComponents";
+
+export type Log = {
+    state: "loading" | "failure" | "success",
+    message: string
+}
+
+export type PathProduct = {
+    id: number,
+    label: string,
+    in: {
+        material: string,
+        type: string,
+        diam: string|number,
+        sexe: string
+    },
+    out: {
+        material: string,
+        type: string,
+        diam: string|number,
+        sexe: string
+    }
+}
+
+export type Path = {
+    paths: PathProduct[]
+}
+
+// ---------- Types for articles selection
+export type SelectedArticleState = {
+    id: number,
+    label: string,
+    connexions: Connexion[], // all connexion 
+    selectedPortIndex: number, // selected port where we start or finish (index)
+}
+
+export type Connexion = {
+    port: string,
+    material: string,
+    sexe: string,
+    type: string,
+    diam: number,
+    }
+
+const emptySelectedArticleState: SelectedArticleState = {
+    id: 0,
+    label: "",
+    connexions: [],
+    selectedPortIndex: 0
+}
+
+// ---------- Types for connexions selection
+export type ConnexionsOptions = {
+    materials: string[];
+    types: string[];
+    diams: string[];
+    sexes: string[];
+}
+
+export type ConnexionState = {
+    connexionsOptions: ConnexionsOptions;
+
+    selectedMaterial: string | null;
+    selectedType: string | null;
+    selectedDiam: string | null;
+    selectedSexe: string | null;
+}
+
+export type ConnexionAction = 
+    | {type: "SET_MATERIAL_OPTION", payload: string[]}
+    | {type: "SET_TYPE_OPTION", payload: string[]}
+    | {type: "SET_DIAM_OPTION", payload: string[]}
+    | {type: "SET_SEXE_OPTION", payload: string[]}
+    | {type: "SET_SELECTED_MATERIAL", payload: string|null}
+    | {type: "SET_SELECTED_TYPE", payload: string |null}
+    | {type: "SET_SELECTED_DIAM", payload: string|null}
+    | {type: "SET_SELECTED_SEXE", payload: string|null}
+    | {type: "RESET_ALL", payload: null}
+
+type SelectedArticleAction = 
+    | {type: "SET", payload: SelectedArticleState}
+    | {type: "SET_ID", payload: number}
+    | {type: "SET_LABEL", payload: string}
+    | {type: "SET_CONNEXIONS", payload: Connexion[]}
+    | {type: "SET_SELECTED_PORT", payload: number}
+
+export const emptyConnexion: ConnexionState = {
+    connexionsOptions: {
+        diams: [],
+        materials: [],
+        sexes: [],
+        types: []
+    },
+    selectedMaterial: null,
+    selectedType: null,
+    selectedDiam: null,
+    selectedSexe: null
+}
+
+export function connexionReducer(state: ConnexionState, action: ConnexionAction): ConnexionState {
+    switch(action.type){
+
+        case "SET_MATERIAL_OPTION":
+            return {
+                ...state,
+                connexionsOptions: {...state.connexionsOptions, materials: action.payload}
+            };
+        
+        case "SET_TYPE_OPTION":
+            return {
+                ...state,
+                connexionsOptions: {...state.connexionsOptions, types: action.payload}
+            };
+
+        case "SET_DIAM_OPTION":
+            return {
+                ...state,
+                connexionsOptions: {...state.connexionsOptions, diams: action.payload}
+            };
+
+        case "SET_SEXE_OPTION":
+            return {
+                ...state,
+                connexionsOptions: {...state.connexionsOptions, sexes: action.payload}
+            };
+
+
+
+        case "SET_SELECTED_MATERIAL":
+            return {
+                ...state,
+                selectedMaterial: action.payload
+            };
+
+        case "SET_SELECTED_TYPE":
+            return {
+                ...state,
+                selectedType: action.payload
+            };
+
+        case "SET_SELECTED_DIAM":
+            return {
+                ...state,
+                selectedDiam: action.payload
+            };
+
+        case "SET_SELECTED_SEXE":
+            return {
+                ...state,
+                selectedSexe: action.payload
+            };
+
+        case "RESET_ALL":
+            return emptyConnexion;
+
+        default:
+            return state;
+
+
+    }
+}
+
+export function selectedArticleReducer(state: SelectedArticleState, action: SelectedArticleAction) : SelectedArticleState{
+    switch(action.type){
+        case "SET":
+            return action.payload;
+
+        case "SET_ID":
+            return {
+                ...state,
+                id: action.payload
+            }
+        case "SET_LABEL":
+            return {
+                ...state,
+                label:action.payload
+            }
+        
+        case "SET_CONNEXIONS":
+            return{
+                ...state,
+                connexions: action.payload
+            }
+        case "SET_SELECTED_PORT":{
+            return {
+                ...state,
+                selectedPortIndex: action.payload
+            }
+        }
+        default: 
+        return state
+    }
+}
+
 
 export default function connexionsTools(){
 
     // UI variables
-    const [activeTab, setActiveTab] = useState("connexions") // connexions | articles
+    const [activeTab, setActiveTab] = useState("articles") // connexions | articles
+    const [showSelecion, setShowSelection] = useState(true);
 
-    // const [start_materials, set_start_materials] =  useState<Option[]>([]);
-    // const [start_selected_material, set_start_selected_material] = useState<Option | null>(null)
+    // FOR CONNEXIONS SELECT
+    const [connexionS, dispatchS] = useReducer(connexionReducer, emptyConnexion);
+    const [connexionE, dispatchE] = useReducer(connexionReducer, emptyConnexion);
 
-    useEffect(()=>{
-        const test = async () =>{
-            const res = await getMaterialOptions();
-            console.log(res)
+    // FOR ARTICLE SELECT
+    const [articleS, dispatchAS] = useReducer(selectedArticleReducer, emptySelectedArticleState);
+    const [articleE, dispatchAE] = useReducer(selectedArticleReducer, emptySelectedArticleState);
+    
+    const [searchArticleCodeS, setSearchArticleCodeS] = useState("");
+    const [searchArticleCodeE, setSearchArticleCodeE] = useState("");
+
+    // loaders
+    const [loadingS, setLoadingS] = useState(false);
+    const [loadingE, setLoadingE] = useState(false);
+
+    // to fill the right code when opening str searching article
+    // 1 or 2
+    const [selectedESArticle, setSelectedESArticle] = useState<number | null>(null) 
+
+    // Function from str searching, get the code selected
+    const setArticleFromSearch = (code: string) =>{
+        setShowStrSearching(false);
+        
+        // fill code
+        if(selectedESArticle === 1){
+            setSearchArticleCodeS(code);
+            fetchAndFill(1, code);
         }
-        test()
-    }, [])
+        else if(selectedESArticle === 2){
+            setSearchArticleCodeE(code);
+            fetchAndFill(2, code);
+        }
+    }
 
+    // Search with cypher request | articleNb : 1 or 2 => which one is used
+    const onSearchCode = (e: React.KeyboardEvent<HTMLInputElement>, articleNb: number, code: string) =>{
+        if(e.key == "Enter"){
+            fetchAndFill(articleNb, code);
+        }
+    }
+
+    // fetch the given code, then get the connexion, and fill th UI
+    const fetchAndFill = async (articleNb: number, code: string) => {
+
+        // Choose which article is choosen
+        fetchArticleConns(code, articleNb);
+    }
+
+    // Fetch the article + connexions
+    const fetchArticleConns = async (input:string, articleNb: number) =>{
+        if(articleNb === 1){dispatchAS({type: "SET", payload: emptySelectedArticleState});setLoadingS(true)}
+        else if(articleNb === 2){dispatchAE({type: "SET", payload: emptySelectedArticleState});setLoadingE(true)}
+        const result = await getConnexions(input)
+        if(articleNb === 1){setLoadingS(false)}else if(articleNb === 2){setLoadingE(false)}
+
+        // no result
+        if(!result[0]){
+            // If article id : 1 ==> means no result found
+            if(articleNb === 1){dispatchAS({type:"SET_ID", payload: 1})}
+            else if(articleNb === 2){dispatchAE({type:"SET_ID", payload: 1})}
+        }
+        else{
+            
+            // get connexions
+            const _connexions: Connexion[] = await result[0].conns.map((conn: any) => ({
+                port: conn.connexion.port,
+                material: conn.connexion.material,
+                sexe: conn.connexion.sexe,
+                type: conn.connexion.type,
+                diam: conn.connexion.diam
+            }))
+
+            const articleState: SelectedArticleState = {
+                id: result[0].inputProduct.id,
+                label: result[0].inputProduct.label,
+                selectedPortIndex: 0,
+                connexions: _connexions,
+            }      
+            
+            // Set the right article
+            if(articleNb === 1){
+                dispatchAS({type: "SET", payload: articleState})
+            }
+            else if(articleNb === 2){
+                dispatchAE({type: "SET", payload: articleState})
+            }
+        }
+        console.log(result)
+    }
+
+
+    // Searching articles by string
+    const [allArticles, setAllArticles] = useState<Article[]>([]);
+    const [showStrSearching, setShowStrSearching] = useState(false);
+
+    // Load all articles
+    useEffect(()=>{
+        const getAllArticles = async () =>{
+            const res = await fetchGetAllArticles();
+            setAllArticles(res);
+        }
+
+        getAllArticles();
+    },[])
+    
+    // Reset all (switch article <-> connexions)
+    const resetAll = () =>{
+        setPaths([]);
+        setPathIndex(0);
+        setLogs([]);
+
+        // connexions
+        dispatchS({type:"RESET_ALL", payload: null})
+        dispatchE({type:"RESET_ALL", payload: null})
+    }
+
+    // RESULTS
+    const [paths, setPaths] = useState<Path[]>([]); // result
+    const [loading, setLoading] = useState(false) // when we fetch the path
+    const [logs, setLogs] = useState<Log[]>([]);
+
+    const [pathIndex, setPathIndex] = useState(0);
+
+
+    // Main function to find the path
+    const findPath = async () =>{
+        
+        // reset logs
+        setLogs([])
+
+        // Check connexion search OR article search
+
+        if(activeTab === "connexions"){
+            // check if both connexions are completes
+            if(connexionS.selectedMaterial && connexionS.selectedType && connexionS.selectedDiam &&  connexionS.selectedSexe && connexionE.selectedMaterial && connexionE.selectedType && connexionE.selectedDiam &&  connexionE.selectedSexe){
+                
+                setLoading(true);
+
+                let success = false;
+                let nb_articles = 1;
+                
+                // Check path for 1 to 5 articles
+                while(!success && nb_articles<6){
+
+                    // Update log
+                    const log: Log = {message: `Recherche avec ${nb_articles} Article(s)`, state: "loading"}
+                    setLogs(prev => [...prev, log]);
+
+                    const res = await findPathWithConnexions(connexionS, connexionE, nb_articles);
+                    console.log(res)
+
+                    success = res.success;
+                    nb_articles = nb_articles+1;
+
+                    // Update log
+                    setLogs(prev => {
+                        if(prev.length === 0){return prev};
+
+                        const lastIndex = prev.length -1;
+
+                        return prev.map((item, index) => 
+                            index === lastIndex 
+                                ? {...item, state: success ? "success" : "failure"}
+                                : item
+                        )
+                    })
+
+                    if(success){
+                        setPathIndex(0);
+                        setPaths(res.paths)
+                    }
+                }
+
+                setLoading(false);
+                
+            }
+        }
+        else if(activeTab === "articles"){
+
+            if(articleS.id !== 0 && articleE.id !== 0 ){
+
+                setLoading(true);
+
+                let success = false;
+                let nb_articles = 0;
+                
+                // Check path for 1 to 5 articles
+                while(!success && nb_articles<4){
+
+                    // Update log
+                    const log: Log = {message: `Recherche avec ${nb_articles} Article(s)`, state: "loading"}
+                    setLogs(prev => [...prev, log]);
+
+                    const res = await findPathWithArticles(articleS, articleE, nb_articles);
+                    console.log(res)
+
+                    success = res.success;
+                    nb_articles = nb_articles+1;
+
+                    // Update log
+                    setLogs(prev => {
+                        if(prev.length === 0){return prev};
+
+                        const lastIndex = prev.length -1;
+
+                        return prev.map((item, index) => 
+                            index === lastIndex 
+                                ? {...item, state: success ? "success" : "failure"}
+                                : item
+                        )
+                    })
+
+                    if(success){
+                        setPathIndex(0);
+                        setPaths(res.paths)
+                    }
+                }
+
+                setLoading(false);
+            }
+        }
+
+    }
 
     return (
-        <div className=" h-full flex flex-col gap-2 p-2">
-            
-            {/* top section */}
-            <div className=" flex">
+        <>
+            {/* String searching code */}
+            <AnimatePresence>
+                {
+                    showStrSearching && <ArticleSelector selectArticle={setArticleFromSearch} onClose={()=>setShowStrSearching(false)} articles={allArticles}></ArticleSelector>
+                }
+            </AnimatePresence>
 
-                {/* Selection side (left) */}
-                <div className="w-[60%]  flex">
+            <div className=" h-full flex flex-col gap-2 p-2">
+                
+                {/* top section */}
 
-                    {/* Tab selection */}
-                    <div className="flex flex-col">
-                        <div className={clsx("p-2 select-none cursor-pointer", activeTab === "connexions" ? "bg-blue-primary/20" : "")} onClick={()=>setActiveTab("connexions")}>Connexions</div>
-                        <div className={clsx("p-2 select-none cursor-pointer", activeTab === "articles" ? "bg-blue-primary/20" : "")} onClick={()=>setActiveTab("articles")}>Articles</div>
-                    </div>
+                <div className={clsx("transition", showSelecion ? "flex" : "hidden")}>
 
-                    {/* tab contents */}
-                    <div className="flex-1 ">
+                    {/* Selection side (left) */}
+                    <div className="w-[70%] flex gap-2  pe-4">
 
-                        {/* connexions */}
-                        {
-                            activeTab === "connexions" &&
-                            <div className="flex flex-col p-1">
-                                
-                                <div className="grid grid-cols-[1fr_1fr]">
+                        {/* Tab selection */}
+                        <div className="flex flex-col border-e-1 border-blue-primary/20">
+                            <div className={clsx("p-2 select-none cursor-pointer", activeTab === "connexions" ? "bg-blue-primary/20" : "")} onClick={()=>setActiveTab("connexions")}>Connexions</div>
+                            <div className={clsx("p-2 select-none cursor-pointer", activeTab === "articles" ? "bg-blue-primary/20" : "")} onClick={()=>{setActiveTab("articles"); resetAll()}}>Articles</div>
+                        </div>
 
-                                    {/* Connexion entrée */}
-                                    <div className="bg-amber-600 text-center">Début</div>
-                                    {/* <CustomSelect options={start_materials} ></CustomSelect> */}
+                        {/* tab contents */}
+                        <div className="flex-1 ">
 
-                                    {/* Connexion Sortie */}
-                                    <div >csdoljkghfnsodlihgsopdi</div>
-                                    <div className="bg-amber-600">cdslkf</div>
+                            {/* connexions */}
+                            {
+                                activeTab === "connexions" &&
+                                <div className="flex flex-col p-1">
+                                    
+                                    <div className="flex flex-col gap-3 pb-3">
+
+                                        {/* Connexion entrée */}
+                                        <div className="flex items-center text-center text-lg font-semibold">
+                                            <p className={clsx("w-[15%]", connexionS.selectedMaterial && connexionS.selectedType && connexionS.selectedDiam &&  connexionS.selectedSexe && "text-green-600 border-s-2 border-green-500")}>Début</p>
+                                            <ConnexionSelector state={connexionS} dispatch={dispatchS}></ConnexionSelector>
+                                        </div>
+
+                                        {/* Connexion Sortie */}
+                                        <div className="flex items-center text-center text-lg font-semibold">
+                                            <p className={clsx("w-[15%]", connexionE.selectedMaterial && connexionE.selectedType && connexionE.selectedDiam &&  connexionE.selectedSexe && "text-green-600 border-s-2 border-green-500")}>Fin</p>
+                                            <ConnexionSelector state={connexionE} dispatch={dispatchE}></ConnexionSelector>
+                                        </div>
+                                    </div>
+
+                                    {/* <div className="border-t-1 border-blue-dark/10 w-full"></div> */}
+                                    
+                                    
+
+                                    {/* Article intermédiaire */}
+                                    {/* <div className="pt-3 flex flex-col">
+                                        <p>Article intermediaire</p> */}
+
+                                        {/* Article */}
+                                        {/* Main input search */}
+                                        
+                                    {/* </div> */}
                                 </div>
-                                
-                                
+                            }
 
-                                {/* Article intermédiaire */}
-                                <div>
+                            {/* articles */}
+                            {
+                                activeTab === "articles" &&
+                                <div className="flex flex-col gap-3">
+                                    
+                                    {/* Article 1 section */}
+                                    <div className=" w-full flex gap-3">
 
+                                        <p className="ps-4 self-center text-center text-lg font-semibold min-w-[100px]">Début</p>
+
+                                        {/* Searching code */}
+                                        {/* Main input search */}
+                                        <div className="flex  self-center items-center gap-2 bg-blue-light p-1 rounded-[10px]">
+                                            <svg className={clsx("flex-shrink-0 transition duration-300", (searchArticleCodeS !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
+                                            <input onKeyDown={(e)=>onSearchCode(e, 1, searchArticleCodeS)} value={searchArticleCodeS} onChange={(e)=>setSearchArticleCodeS(e.target.value)} className="flex-1 min-w-0 max-w-[120px] outline-0 text-md" type="text" placeholder="Code article"/>
+                                            
+                                            {/* Search by str */}
+                                            <svg onClick={()=>{setShowStrSearching(true); setSelectedESArticle(1)}} className="flex-shrink-0 fill-blue-primary/90 cursor-pointer hover:fill-blue-primary hover:scale-105 transition" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path d="M15.25 2h-6.5A6.76 6.76 0 0 0 2 8.75v6.5A6.76 6.76 0 0 0 8.75 22h6.5A6.76 6.76 0 0 0 22 15.25v-6.5A6.76 6.76 0 0 0 15.25 2m2 14.94a.78.78 0 0 1-.57.23a.8.8 0 0 1-.56-.23l-2-2a4.81 4.81 0 1 1 1.13-1.13l2 2a.79.79 0 0 1 .01 1.13z"/><path d="M14.5 11a3.21 3.21 0 1 1-6.418 0a3.21 3.21 0 0 1 6.418 0"/></svg>
+
+                                        </div>
+
+                                        {
+                                            loadingS &&
+                                            <CircularLoader size={20} strokeWidth={2} speed={2} className="self-center" />
+                                        }
+
+                                        {/* fetch result (Artilce info + connexion selection) */}
+
+                                        {
+                                            articleS.id === 1 
+                                            ? <div>Pas de résultats</div>
+                                            :
+                                            <>
+                                             {
+                                                articleS.id != 1 && articleS.id != 0 &&
+
+                                                <div className="flex flex-col items-start w-full">
+                                                    {/* Article label */}
+                                                    <p className="px-2 w-full py-1 rounded-t-[5px] bg-blue-dark text-white text-lg">{articleS.label}</p>
+                                                    
+                                                    {/* List of connexions */}
+                                                    <table className="w-full border-collapse">
+                                                        <tbody>
+                                                            {articleS.connexions.map((conn, index) => {
+                                                            const isSelected = articleS.selectedPortIndex === index
+
+                                                            return (
+                                                                <tr
+                                                                key={index}
+                                                                onClick={() =>
+                                                                    dispatchAS({ type: "SET_SELECTED_PORT", payload: index })
+                                                                }
+                                                                className={clsx(
+                                                                    "cursor-pointer transition-colors",
+                                                                    "hover:bg-blue-50",
+                                                                    isSelected && "bg-blue-100"
+                                                                )}
+                                                                >
+                                                                {/* Sélection */}
+                                                                <td className="w-6 text-center px-1 font-semibold text-blue-600">
+                                                                    {isSelected ? "Départ" : ""}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200">
+                                                                    {conn.port}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.material}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.type}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.diam}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.sexe}
+                                                                </td>
+                                                                </tr>
+                                                            )
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+
+                                                    
+                                                </div>
+                                             }
+                                            </>
+                                        }
+
+                                    </div>
+
+                                    <div className="w-full h-[2px] bg-blue-dark/40"></div>
+
+
+                                    {/* Article 2 section */}
+                                    <div className=" w-full flex gap-3">
+
+                                        <p className="ps-4 self-center text-center text-lg font-semibold min-w-[100px]">Fin</p>
+
+                                        {/* Searching code */}
+                                        {/* Main input search */}
+                                        <div className="flex  self-center items-center gap-2 bg-blue-light p-1 rounded-[10px]">
+                                            <svg className={clsx("flex-shrink-0 transition duration-300", (searchArticleCodeE !== "") ? "scale-115 stroke-blue-dark" : "stroke-blue-primary")} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><g fill="none" stroke-linejoin="round" stroke-width="4"><path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z"/><path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485"/></g></svg>
+                                            <input onKeyDown={(e)=>onSearchCode(e, 2, searchArticleCodeE)} value={searchArticleCodeE} onChange={(e)=>setSearchArticleCodeE(e.target.value)} className="flex-1 min-w-0 max-w-[120px] outline-0 text-md" type="text" placeholder="Code article"/>
+                                            
+                                            {/* Search by str */}
+                                            <svg onClick={()=>{setShowStrSearching(true); setSelectedESArticle(2)}} className="flex-shrink-0 fill-blue-primary/90 cursor-pointer hover:fill-blue-primary hover:scale-105 transition" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path d="M15.25 2h-6.5A6.76 6.76 0 0 0 2 8.75v6.5A6.76 6.76 0 0 0 8.75 22h6.5A6.76 6.76 0 0 0 22 15.25v-6.5A6.76 6.76 0 0 0 15.25 2m2 14.94a.78.78 0 0 1-.57.23a.8.8 0 0 1-.56-.23l-2-2a4.81 4.81 0 1 1 1.13-1.13l2 2a.79.79 0 0 1 .01 1.13z"/><path d="M14.5 11a3.21 3.21 0 1 1-6.418 0a3.21 3.21 0 0 1 6.418 0"/></svg>
+
+                                        </div>
+
+                                        {
+                                            loadingE &&
+                                            <CircularLoader size={20} strokeWidth={2} speed={2} className="self-center" />
+                                        }
+
+                                        {/* fetch result (Artilce info + connexion selection) */}
+
+                                        {
+                                            articleE.id === 1
+                                            ? <div>Pas de résultats</div>
+                                            :
+                                            <>
+                                             {
+                                                articleE.id != 1 && articleE.id != 0 &&
+
+                                                <div className="flex flex-col items-start w-full">
+                                                    {/* Article label */}
+                                                    <p className="px-2 w-full py-1 rounded-t-[5px] bg-blue-dark text-white text-lg">{articleE.label}</p>
+                                                    
+                                                    {/* List of connexions */}
+                                                    <table className="w-full border-collapse">
+                                                        <tbody>
+                                                            {articleE.connexions.map((conn, index) => {
+                                                            const isSelected = articleE.selectedPortIndex === index
+
+                                                            return (
+                                                                <tr
+                                                                key={index}
+                                                                onClick={() =>
+                                                                    dispatchAE({ type: "SET_SELECTED_PORT", payload: index })
+                                                                }
+                                                                className={clsx(
+                                                                    "cursor-pointer transition-colors",
+                                                                    "hover:bg-blue-50",
+                                                                    isSelected && "bg-blue-100"
+                                                                )}
+                                                                >
+                                                                {/* Sélection */}
+                                                                <td className="w-6 px-1 text-center font-semibold text-blue-600">
+                                                                    {isSelected ? "Arrivée" : ""}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200">
+                                                                    {conn.port}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.material}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.type}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.diam}
+                                                                </td>
+
+                                                                <td className="px-3 py-1 border-b border-gray-200 text-gray-700">
+                                                                    {conn.sexe}
+                                                                </td>
+                                                                </tr>
+                                                            )
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+
+                                                    
+                                                </div>
+                                             }
+                                            </>
+                                        }
+
+                                    </div>
                                 </div>
-                            </div>
-                        }
+                            }
 
-                        {/* articles */}
-                        {
-                            activeTab === "articles" &&
-                            <div>
-                                articles content
-                            </div>
-                        }
-
+                        </div>
                     </div>
+                    
+                    <div className="border-r-1 border-blue-dark/10 px-3 flex items-end">
+                        <div className="ms-auto p-2 bg-blue-primary rounded-xl cursor-pointer flex items-center justify-center w-[40px] h-[40px]" onClick={()=>{if(!loading){findPath()}}}>
+                            {
+                                loading 
+                                ? <CircularLoader size={20} strokeWidth={2} speed={2} className="text-white flex-1" />
+                                :   <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 512 512"><path fill="white" d="m280.16 242.79l-26.11-26.12a32 32 0 0 0-45.14-.12L27.38 384.08c-6.61 6.23-10.95 14.17-11.35 23.06a32.1 32.1 0 0 0 9.21 23.94l39 39.43a.5.5 0 0 0 .07.07A32.3 32.3 0 0 0 87 480h1.18c8.89-.33 16.85-4.5 23.17-11.17l168.7-180.7a32 32 0 0 0 .11-45.34M490 190l-.31-.31l-34.27-33.92a21.46 21.46 0 0 0-15.28-6.26a21.9 21.9 0 0 0-12.79 4.14c0-.43.06-.85.09-1.22c.45-6.5 1.15-16.32-5.2-25.22a258 258 0 0 0-24.8-28.74a.6.6 0 0 0-.08-.08c-13.32-13.12-42.31-37.83-86.72-55.94A139.6 139.6 0 0 0 257.56 32C226 32 202 46.24 192.81 54.68a120 120 0 0 0-14.18 16.22a16 16 0 0 0 18.65 24.34a75 75 0 0 1 8.58-2.63a63.5 63.5 0 0 1 18.45-1.15c13.19 1.09 28.79 7.64 35.69 13.09c11.7 9.41 17.33 22.09 18.26 41.09c.18 3.82-7.72 18.14-20 34.48a16 16 0 0 0 1.45 21l34.41 34.41a16 16 0 0 0 22 .62c9.73-8.69 24.55-21.79 29.73-25c7.69-4.73 13.19-5.64 14.7-5.8a19.2 19.2 0 0 1 11.29 2.38a1.24 1.24 0 0 1-.31.95l-1.82 1.73l-.3.28a21.52 21.52 0 0 0 .05 30.54l34.26 33.91a21.45 21.45 0 0 0 15.28 6.25a21.7 21.7 0 0 0 15.22-6.2l55.5-54.82c.19-.19.38-.39.56-.59A21.87 21.87 0 0 0 490 190"/></svg>
+                            }
+                            
+                        </div>
+                    </div>
+                    {/* Log side (right) */}
+                    <div className="w-[30%] flex flex-col">
+                        {
+                            logs.map(log => (
+                                <div className="flex justify-start items-center gap-2 py-1 px-2">
+                                    {
+                                        log.state === "loading" && <CircularLoader size={20} className="stroke-blue-primary"></CircularLoader>
+                                    }
+                                    {
+                                        log.state === "failure" && <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48"><path className="fill-red-primary" fill-rule="evenodd" d="M44 24c0 11.046-8.954 20-20 20S4 35.046 4 24S12.954 4 24 4s20 8.954 20 20m-27.778 7.778a1 1 0 0 1 0-1.414L22.586 24l-6.364-6.364a1 1 0 0 1 1.414-1.414L24 22.586l6.364-6.364a1 1 0 0 1 1.414 1.414L25.414 24l6.364 6.364a1 1 0 0 1-1.414 1.414L24 25.414l-6.364 6.364a1 1 0 0 1-1.414 0" clip-rule="evenodd"/></svg>
+                                    }
+                                    {
+                                        log.state === "success" && <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 1024 1024"><path className="fill-green-500" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896m-55.808 536.384l-99.52-99.584a38.4 38.4 0 1 0-54.336 54.336l126.72 126.72a38.27 38.27 0 0 0 54.336 0l262.4-262.464a38.4 38.4 0 1 0-54.272-54.336z"/></svg>
+                                    }
+                                    <p>{log.message}</p>
+                                </div>
+                            ))
+                        }
+                    </div>
+                    
                 </div>
                 
-                {/* Log side (right) */}
-                <div className="w-[40%]">
-
+                {/* separator */}
+                <div className="w-full flex items-center gap-3">
+                    <div className="h-[1px] bg-blue-primary/20 w-full"></div>
+                    
+                    <svg onClick={()=>setShowSelection(!showSelecion)} className={clsx("fill-blue-primary rotate-90 cursor-pointer", !showSelecion && "rotate-270")} xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M12.727 3.687a1 1 0 1 0-1.454-1.374l-8.5 9a1 1 0 0 0 0 1.374l8.5 9.001a1 1 0 1 0 1.454-1.373L4.875 12z"/></svg>
+                    
                 </div>
-                
-            </div>
-            
-            {/* separator */}
-            <div className="h-[1px] bg-blue-primary/20 w-full"></div>
 
-            {/* Down section */}
-            <div className="flex-1 bg-amber-500 overflow-y-auto">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus natus magni similique nobis labore sequi placeat sapiente consequuntur animi illum rem ab illo, quae quo minima provident cumque magnam voluptas ea repudiandae quasi quod repellat fugit praesentium? Facere obcaecati dolor voluptas delectus reiciendis inventore blanditiis nisi deserunt non ratione numquam recusandae tempore exercitationem nam aut nesciunt praesentium architecto esse, temporibus, laboriosam, quis corrupti in! Qui cum necessitatibus veritatis harum odio, quasi voluptatibus nemo atque quo, ea cumque tenetur quisquam repellendus nulla! Nisi similique nam minus quae. Tempore commodi laudantium modi deleniti iure voluptatibus doloremque quidem est ipsum ipsam animi delectus ab, voluptates quisquam repellat quo suscipit odit adipisci quibusdam quam rem tempora porro aperiam ex. Consequatur nostrum, blanditiis rem cumque, tempora repellendus eos, sed amet ratione sunt iste corporis. Rem officiis voluptates perspiciatis eaque veritatis reprehenderit quia incidunt. Corrupti excepturi unde voluptatum iusto illo quos enim nulla cumque illum fugit est omnis voluptatibus sit facere harum repudiandae reiciendis vero alias vitae, pariatur, nihil quam? Qui ducimus labore nobis, ea excepturi officiis quis unde aliquam voluptas nisi quam! Natus deleniti esse temporibus dolores illo fugiat beatae, dignissimos culpa ipsa. Saepe autem perferendis laboriosam voluptate quasi doloremque consectetur distinctio expedita quaerat blanditiis quod ab deleniti laudantium aliquam, quos eligendi veniam explicabo maiores cupiditate voluptatem optio quis, velit dolor. Nam eos perferendis, porro distinctio accusantium officiis et quis aperiam exercitationem impedit recusandae officia nisi, ipsam consectetur. Culpa repellat quas voluptatem non necessitatibus porro vitae nisi delectus quo similique harum debitis itaque, asperiores at consequuntur excepturi ducimus maxime, minus tenetur voluptas soluta possimus accusantium in distinctio. Adipisci alias natus quos quasi, animi fuga excepturi quis, unde enim rerum nobis illo, debitis eos mollitia optio doloribus vel sint inventore. Praesentium voluptatem consequatur libero qui, asperiores nemo alias molestias sint suscipit dolorum doloribus harum ipsum fugit animi voluptatibus repellat adipisci facilis aliquid, quibusdam ea nostrum ullam. Aliquam, laborum tempore debitis vel veniam nam exercitationem eveniet alias quas numquam reiciendis illum odio et asperiores soluta corrupti. Sapiente a maiores incidunt vel nisi? Pariatur praesentium velit modi cumque vero, placeat aut maxime tempora inventore, voluptatibus earum accusantium, est ad ipsa dolorum! Vitae laboriosam hic sed corrupti temporibus itaque inventore quo veritatis cum, pariatur beatae dolores molestiae qui, veniam perferendis eius velit! Ullam accusamus iste aspernatur in distinctio non dolores quidem quibusdam possimus exercitationem qui nostrum repudiandae velit mollitia sint maxime fugiat, veritatis nam facere debitis! Aliquam est debitis voluptates voluptas similique maiores incidunt hic sint! Aut cupiditate quam nobis ipsam error quas, quae, est nemo enim, doloribus amet! Atque veniam voluptatem beatae laborum dolores expedita dignissimos quae, saepe corrupti dicta culpa, libero accusantium laboriosam, possimus consequatur officiis similique. Nulla, nihil? Tempora odit et assumenda nemo temporibus qui maxime sunt rerum nobis omnis rem quis soluta ex quidem, quisquam culpa ullam saepe in perspiciatis amet adipisci perferendis, exercitationem optio! Vero dolor magni vitae ducimus alias deserunt consequatur nisi veniam nihil praesentium odit, quis fuga provident voluptatibus maxime consectetur porro dignissimos at autem molestiae delectus? Ipsa quisquam dolore nemo nulla consequuntur amet vel dolorum laborum reiciendis, ea similique beatae quibusdam quidem tempore veniam ut accusamus doloribus quia fugit obcaecati fugiat cupiditate hic sequi iure! Maiores porro nemo assumenda magnam quis vero molestias adipisci fuga deleniti natus. Excepturi porro totam cupiditate nulla distinctio animi, quia fugiat. Labore quaerat officia amet iusto, exercitationem repellat odit nam id natus ex cumque eaque aspernatur, neque quis ducimus suscipit doloribus accusamus impedit quo quas excepturi voluptatem sequi, accusantium dolorem. Totam impedit recusandae, facilis tenetur deserunt in officia eum, voluptatem dolore ratione doloremque vel quam. Eaque asperiores reiciendis, consequuntur magni consectetur dolorem nisi. At tempora nostrum provident fugiat fugit quam a eligendi. Quasi temporibus ut, provident quaerat inventore maiores nemo ipsum, eveniet nisi minus et ad. Ut quos odio vitae dolorem, eveniet architecto libero perferendis pariatur, eligendi tenetur, at porro sit molestias beatae. Magni quae voluptas, ullam explicabo quibusdam harum laudantium distinctio suscipit omnis dolorum. Vel unde culpa voluptatem distinctio tempore est. Ipsum distinctio nihil, veritatis quod laudantium natus, veniam suscipit asperiores illum repellat reprehenderit eius atque perspiciatis, possimus modi architecto. Neque, id maxime? Ipsam voluptatibus, earum nostrum consequuntur officia dolor perferendis tenetur. Quaerat odio maiores, repellendus itaque delectus saepe modi laborum cupiditate perferendis eius sunt ipsam numquam optio placeat mollitia maxime corrupti, nesciunt magnam adipisci! Culpa aliquam aspernatur hic laudantium mollitia dignissimos, aut minus nulla exercitationem quam aliquid dicta optio rerum eius eos possimus cumque odit nihil! Neque doloremque perspiciatis nobis vero dolorum consequuntur natus consequatur reprehenderit eos nihil asperiores dicta eius ipsa error, suscipit ipsam impedit nesciunt? Vitae omnis, nihil tenetur reprehenderit doloremque similique? Eveniet eius quod voluptatum? Illo, repellat voluptates! Eius veritatis odio fugiat magni nulla amet aperiam porro iusto totam nihil dolore asperiores perferendis quam voluptatibus fugit minus, doloribus minima dignissimos impedit tempore consequuntur. Reiciendis ad aspernatur, fugiat porro vero temporibus cumque animi hic natus facere maiores deleniti repellendus pariatur eaque ipsum esse nisi illum excepturi! Illo in facilis perferendis debitis mollitia inventore sapiente ratione. Aspernatur corporis aperiam neque dolore itaque. Id incidunt ratione at, fuga dolores non amet ut deserunt tenetur ipsam neque tempora dicta vero voluptatum aliquam nulla beatae ad corporis ab illo nam ipsa ex alias. Ab nesciunt quam cupiditate labore ipsa unde officiis facilis praesentium. Ad maxime incidunt id doloremque cupiditate nam corporis veniam quas voluptate fuga, perferendis sunt sit impedit dignissimos velit culpa, quasi illo vitae reprehenderit. Adipisci ad, ullam culpa accusamus explicabo porro minima cumque natus error sint, facere ratione eos. Nulla eaque quos dolor repudiandae doloremque earum voluptates, nobis sapiente adipisci accusantium officia alias recusandae voluptas? Ullam error maxime maiores cupiditate recusandae architecto quos atque? Ad omnis quisquam aliquid eius, iure saepe ab hic assumenda aspernatur odit eveniet. Qui temporibus veniam sed quia reprehenderit, perferendis cumque, pariatur impedit, libero similique commodi corrupti ipsam delectus et tempore velit doloribus optio amet cupiditate adipisci quisquam rem recusandae error. Officiis, porro assumenda eaque, mollitia sequi, ullam aspernatur esse dicta voluptas illum deleniti error accusamus explicabo consequatur magni doloremque quis totam voluptatem. Ab repellat eaque ipsum? Dignissimos consequuntur nesciunt quis, necessitatibus cumque quam illum dolore voluptatum suscipit. Quia, aspernatur eius reiciendis a distinctio animi adipisci corporis nesciunt illo, atque assumenda minus ipsam exercitationem quis ex deserunt sed. Ullam autem enim deserunt eum. Accusantium a error totam neque est nesciunt quae, illum officiis tempore laboriosam fugiat laudantium non vitae. Nesciunt voluptate corrupti sed dignissimos. Officia fugiat, sint nihil soluta quidem iste esse, asperiores rerum repellendus incidunt et illum, similique vero quibusdam sapiente ratione delectus voluptates illo error molestiae consequatur? Sint, omnis eius sunt quod beatae consectetur veniam doloribus! Delectus cum voluptates soluta saepe maiores officiis ducimus ratione unde laborum ipsum, doloribus eius iure modi id aspernatur nemo aliquam facilis tenetur possimus quas accusantium, magnam est! Facere laudantium illum ab voluptatibus sed unde natus aut ducimus pariatur error. Corrupti nihil cumque quas consequuntur accusamus laborum aliquid minus natus sint officia, fugit, mollitia obcaecati at dolorem consectetur ea libero atque error inventore eveniet debitis dolore qui? Et esse ea nihil sequi eos voluptas nesciunt rem, consequuntur architecto adipisci est amet possimus laboriosam blanditiis quam! Aliquid recusandae possimus non, provident esse quis eum similique modi, vero sequi, a id veritatis. Accusantium omnis vitae ipsa quod eveniet voluptates nihil in excepturi totam aspernatur, optio nesciunt vel laboriosam quidem sed quaerat modi itaque corporis obcaecati eligendi quisquam recusandae dolorum. Voluptate repellat, optio repudiandae eaque corrupti reiciendis fugiat aliquid porro. Eligendi dolores exercitationem aut ipsa cupiditate suscipit iure aliquid, doloribus architecto tempora. Quibusdam a non veniam quas incidunt labore ea sit voluptate excepturi expedita. Dolore nostrum porro quas magnam temporibus a quibusdam, ducimus ad ipsam repellendus explicabo aspernatur dolor iure possimus eligendi. Maiores quas tempora eaque omnis expedita cupiditate, laborum distinctio minima debitis, consectetur nostrum mollitia ex magnam vel quibusdam quis at accusamus amet nisi quidem eum! Odio placeat natus quasi, et recusandae sequi repellendus, vero labore tempora odit exercitationem deserunt culpa cumque pariatur error perspiciatis, autem alias ullam provident quod. Repellat consectetur laborum rem quasi totam quidem dicta omnis libero voluptates asperiores, odit quisquam aperiam beatae facere! Reiciendis nobis dignissimos ducimus rem aut, explicabo libero illum sapiente molestias id deserunt enim, et minus consequuntur numquam voluptatem repellat recusandae est molestiae odio adipisci. In provident excepturi obcaecati dolor ad similique at voluptatum quidem, ab magnam ipsum nobis ratione dolores cupiditate recusandae praesentium sapiente rem quod assumenda illo, cumque iusto. Perspiciatis, nulla autem expedita reiciendis voluptatum culpa totam assumenda eos et ad esse accusantium tenetur libero, consequuntur nihil amet repellat iste? Animi inventore reprehenderit impedit facere laudantium tempore ut, quod, iusto nam aut, repellat repudiandae voluptas quisquam minus molestiae! Hic provident quia doloremque blanditiis, dolores illum recusandae aspernatur reiciendis enim fugiat error iusto necessitatibus repellat magni libero, asperiores dignissimos debitis quaerat dolorem sit, unde veniam. Possimus consectetur, dicta sunt molestiae velit delectus ducimus odit. Dolore vero praesentium perferendis laudantium optio non ut unde, ipsa numquam earum ex autem explicabo obcaecati perspiciatis quidem totam hic, ullam saepe. Enim similique optio laboriosam, veritatis sit debitis mollitia consequatur corporis impedit officiis voluptate repudiandae quaerat iure et accusantium velit quibusdam est illum animi consectetur, doloremque voluptatem consequuntur. Ex, excepturi atque neque dolore tempore sint reprehenderit sed voluptatibus dolorem delectus exercitationem, omnis saepe similique maiores fuga voluptate veritatis illo vel libero eligendi magnam, laborum quasi ipsa! Delectus quam molestias sit quaerat, temporibus quae aut accusamus. Ex dignissimos praesentium omnis, porro quod officiis aut numquam cumque, distinctio assumenda qui provident ipsum fugiat expedita aliquam saepe vitae placeat voluptates eius, eaque deleniti veniam illo quasi. Blanditiis nesciunt ut debitis harum voluptatem animi vero a officia atque, excepturi accusantium repellendus vitae assumenda natus accusamus quidem ab fugit. Illum magni commodi optio quas eligendi autem quae natus ut doloribus nostrum unde quaerat nam eos fugiat harum quos obcaecati qui ea voluptatem, quod, officia deleniti dolore veritatis? Pariatur beatae quis ex laudantium unde libero consectetur neque quo non expedita eius animi vero obcaecati sequi facilis, ipsa nulla eaque in. Harum nam reprehenderit temporibus similique, placeat dicta, quia vel quo neque, omnis voluptate iste aliquid illo perferendis illum ad a eum asperiores ullam debitis! Similique quae quaerat aliquam dicta in nobis cumque cum, iusto adipisci reiciendis ipsam, optio aperiam eius omnis harum laudantium, velit sit sunt. Explicabo assumenda soluta saepe accusantium, qui doloremque, unde aut eveniet quae ipsum quasi! Laborum consequuntur eum, iure non praesentium consectetur harum corporis pariatur delectus quasi vitae nemo accusamus dolores sunt architecto cupiditate accusantium incidunt exercitationem vero possimus iusto sed fuga velit esse. Sapiente dolore nesciunt iste nisi autem, porro tenetur totam eaque labore nulla cumque, quasi, corporis repellendus quidem laudantium quaerat illo nemo! Est consequatur optio blanditiis ducimus eveniet, tempora quae doloremque placeat explicabo esse ad nihil voluptas libero sequi doloribus veniam laboriosam, officiis neque labore quasi reiciendis aspernatur in facilis. Voluptate, mollitia tempora! Sapiente autem alias ratione quam earum consequatur repellat, reprehenderit dolore nobis facere quae maiores assumenda suscipit in soluta asperiores ipsum enim nulla. Dignissimos, iste tempore. Velit ut suscipit molestias ipsum maxime dignissimos, pariatur quos omnis neque ex aspernatur eveniet quod odit fuga explicabo nobis cupiditate? Nemo quo adipisci officia temporibus modi a ipsam! Inventore blanditiis, fugit voluptatibus laboriosam, odit, ad qui necessitatibus praesentium reiciendis consequatur assumenda nihil! Harum fuga voluptatem vitae, ad eveniet odit placeat ullam a voluptatibus asperiores hic porro blanditiis ea aspernatur sit, dolores accusantium repellat debitis, recusandae possimus consequuntur nobis laboriosam. Adipisci quasi aut hic? Fugiat, laborum accusamus. Repellendus, maxime! Laboriosam voluptates labore debitis libero. Dolore dicta nobis maiores aspernatur ipsam inventore, reprehenderit quam. Inventore recusandae fuga ratione numquam sit, facilis impedit asperiores odio officia suscipit, doloremque provident, voluptatibus molestias cumque libero maxime architecto. Autem itaque quis hic, qui ut, illum expedita suscipit distinctio vitae similique dignissimos deleniti dolores velit aliquid inventore cumque iste reiciendis iusto amet tempore debitis totam voluptatibus! Eius quod impedit repellendus mollitia quia! Inventore laboriosam pariatur, nisi recusandae ab dolorem id similique consectetur amet itaque? Maxime esse cumque ad eaque ab voluptate alias eligendi molestiae, iusto voluptatibus magni, debitis numquam repellendus ipsa ipsum possimus, inventore consequatur repellat maiores libero quibusdam fugiat. Voluptate, dolorum ut. Cupiditate sed minima ad aliquam officia sint. Quos porro quis perspiciatis eaque? Nesciunt suscipit consequuntur, corrupti accusantium hic labore quidem mollitia delectus placeat iure ex dolore a? Eligendi, odio? Reiciendis quam dolorem ullam molestias accusamus accusantium voluptates aperiam sunt labore ratione commodi ipsum alias amet error itaque consectetur rerum, est, nobis ipsam culpa dignissimos, animi totam praesentium. Laboriosam dicta at dolor libero officia? Nostrum quas eligendi maiores facere voluptatem, deserunt eaque obcaecati earum quod culpa tempora voluptate consectetur! Iure excepturi sapiente, ducimus nisi, vitae tenetur consequatur eaque magnam, dicta fugit illum facilis at fuga esse corporis itaque. Fugit aperiam at est alias. Eum blanditiis repellendus iure pariatur modi repellat dolorum laboriosam nobis commodi, ex voluptate voluptatem tempora natus qui soluta ratione porro suscipit id. Earum tempora eveniet iste illum doloribus accusamus, facilis quam laboriosam minima accusantium velit voluptate exercitationem voluptatibus, laudantium quis similique harum suscipit ad repellendus numquam molestias aspernatur nesciunt inventore. Possimus voluptate exercitationem maxime a quod laboriosam repellendus id nisi ad at dignissimos error voluptatum cumque harum animi perferendis quidem suscipit ullam architecto fugit, illum, nesciunt rem? Architecto magni nulla eum earum in, ullam, ipsam sapiente deleniti quisquam molestiae perferendis. Sed praesentium excepturi, hic fugiat consectetur veniam tempore culpa consequatur ex laudantium fugit deserunt? Minima praesentium illum nisi. Temporibus, eaque natus ducimus eligendi dolore illo nisi nam molestias a, ipsam provident sequi nihil. Veniam quae aliquam aliquid doloremque expedita autem quod ut earum libero magnam explicabo molestias esse, praesentium blanditiis iure necessitatibus natus in enim. Tenetur quam placeat nihil dolorum dicta temporibus dolores, mollitia esse blanditiis, aperiam rerum repellendus corrupti. Deleniti voluptatibus dolores omnis labore nisi voluptas quod enim qui ipsam et, maxime vero placeat pariatur odit eligendi perferendis tempore optio eos minima eius. Tenetur exercitationem magni deleniti, repellendus assumenda provident excepturi. Commodi excepturi quo et sit tenetur doloribus, assumenda earum molestiae corporis consectetur! Culpa vel eos distinctio perspiciatis nostrum, rem dolores dignissimos exercitationem fugit laborum possimus quos, voluptatibus consequatur accusamus sint iste minima magni, commodi quibusdam. Eligendi fugiat vero velit sapiente veritatis ad minus asperiores. Nam esse laudantium quos officia iure laboriosam ut similique labore molestiae nobis delectus praesentium deleniti, illo sed nesciunt ullam dolor blanditiis officiis veritatis. Aperiam deleniti eum tempora. Cupiditate, aspernatur? Itaque harum culpa qui asperiores, maiores, quisquam vero obcaecati sapiente laudantium nobis nulla incidunt esse. Aperiam, architecto praesentium! Maxime deserunt atque minima dolore, porro libero aspernatur officia quaerat perspiciatis tenetur consequatur maiores culpa quo, iure cupiditate commodi nulla, facere iste quasi veniam officiis. Ad voluptatum quis est consectetur ducimus laudantium nam corporis voluptatem omnis possimus cumque sit, molestias quasi necessitatibus. Eius nam illum culpa omnis! Quod autem odio quisquam quibusdam perferendis fugiat tenetur ad maxime sint illum odit nulla iusto nisi, eos possimus rerum delectus saepe commodi nam assumenda ea fugit, dicta laboriosam. Quas ipsam facilis quidem sed quaerat corrupti fugiat exercitationem ad, ipsum quos odit rerum! Iure, adipisci assumenda quisquam vero in exercitationem facilis mollitia eum repellat debitis perferendis sunt, eos ut nihil nostrum quia veniam iste dolores voluptatibus odio ipsa odit! Recusandae, enim repudiandae aut beatae tempora excepturi neque earum, dolor, doloremque asperiores quas odit totam quibusdam ducimus velit deserunt quod fuga? Quos quod aut consequuntur unde id. At quam magnam suscipit, atque, eveniet dolore molestiae assumenda doloremque quae cupiditate sit perspiciatis harum praesentium reprehenderit accusantium nostrum ipsum ullam. Aut ad autem illo culpa repellat cupiditate repellendus, itaque earum alias distinctio aspernatur nostrum consequuntur incidunt harum quaerat magnam vero provident quas. Commodi fugit expedita eveniet magnam pariatur natus quis temporibus nisi numquam voluptatem totam quasi iusto, sint, ducimus soluta accusantium magni nulla rem culpa voluptate adipisci! Repellat eum ullam in, illum ut, maiores error autem dignissimos magnam ipsam hic, recusandae aspernatur sunt sint deserunt? Rem sunt nostrum iure modi pariatur, ullam qui veritatis accusantium nemo! Placeat alias id expedita explicabo unde itaque quisquam et, harum corrupti reprehenderit eveniet voluptatibus, exercitationem ipsum qui earum ducimus laborum, a quibusdam praesentium quae officia temporibus sed molestias molestiae. Dignissimos minima delectus assumenda quod saepe eveniet iure eaque illo in asperiores! Repellendus saepe accusamus aperiam alias ratione magni sequi, quidem perferendis eveniet tenetur praesentium a nisi quas, reiciendis distinctio laudantium rerum earum amet velit? Dolore libero velit nihil provident voluptate molestias reiciendis unde deleniti consequuntur, similique saepe corporis voluptatibus! Non tempora nemo explicabo, libero tenetur animi facere sapiente unde dolorum quod accusamus perferendis voluptatem quisquam ratione vel amet molestiae quaerat incidunt odio atque nostrum! Provident distinctio molestias soluta ullam laborum nobis, sed repellat unde non debitis eveniet omnis, ipsum odio ipsam placeat excepturi iste ratione officiis dolores. Suscipit velit amet molestiae voluptas excepturi ducimus, possimus inventore, saepe, tempora nam ex et eos impedit quos consequuntur officia labore! Expedita repellendus adipisci quaerat aliquid consequuntur. Qui minus consequuntur, earum nam corporis omnis nemo minima dicta nobis cum. Cum delectus aliquam veritatis eligendi vero dicta, dolore eum inventore quam ipsa quisquam temporibus hic, magni consequatur esse quo asperiores, repellat distinctio quaerat eius neque amet sunt! Rem minima, iste delectus non dignissimos tenetur ad repudiandae nostrum perferendis nemo quaerat eligendi, deserunt officia vero! Recusandae asperiores doloremque eligendi, at enim ex voluptatem repellat reprehenderit commodi libero! Vel illum vero, aliquam enim, quidem odio dolorem nam nesciunt temporibus consequuntur tempore saepe magnam numquam perferendis ratione at. Soluta voluptate, quisquam esse id laborum tempora expedita nemo. Ducimus et, atque quod omnis ratione aliquam id assumenda! Dolores laborum iste, facilis nisi sint officia reiciendis! Laborum eveniet corrupti accusamus ullam mollitia velit id iusto distinctio voluptatibus vel sit, saepe officia molestiae asperiores eius incidunt possimus harum recusandae dolorum similique facilis sequi temporibus. Iusto sit et officia maiores rem accusamus ipsum aliquam autem, harum doloremque corporis eaque libero eligendi nostrum iste? Totam, illum. Quam voluptatum odio eum dolor, possimus incidunt fugit? Quos cum dolores aut ullam asperiores, ad commodi? Nihil facere at modi labore praesentium odio laboriosam ipsa dolorem dolores sunt. Voluptatem soluta inventore expedita consequuntur. Explicabo nisi necessitatibus similique recusandae aliquid eligendi quaerat labore ullam aut, alias suscipit quia. Alias magnam totam laboriosam. Similique obcaecati doloribus dolore facere cupiditate ducimus omnis, recusandae alias ipsa vero fuga nihil hic consectetur inventore molestias sed nobis at, et ab impedit voluptatibus, deserunt amet? Sapiente esse ut possimus accusamus, sequi delectus voluptate sint quaerat perspiciatis non obcaecati harum repellat debitis accusantium beatae ex laboriosam consectetur voluptas quis reprehenderit, dolor facilis voluptatibus? Doloremque nulla vel quos obcaecati quam delectus eligendi, tempore earum itaque voluptatem harum nemo eum id optio reiciendis, officia inventore provident dolorum sapiente, ullam praesentium expedita quod? Fuga nemo iusto asperiores numquam quam iste inventore facilis minus cupiditate itaque, veritatis animi, impedit odit similique soluta! Accusamus libero esse cum ad quo non vitae! Numquam atque cupiditate incidunt, expedita harum dolorum quaerat a sunt excepturi quibusdam fugit assumenda rerum dicta sit sapiente officiis debitis, omnis possimus! Sed ratione ea aperiam! Blanditiis quibusdam in tempora, temporibus at sed odio incidunt aliquam doloremque excepturi fugiat commodi nulla ut minima magnam reiciendis iure expedita quos veniam perferendis! Culpa, facilis. Delectus veritatis impedit itaque laudantium molestiae vitae beatae, praesentium repellendus nulla perferendis placeat ducimus rerum eum nobis, libero illo cupiditate nam repudiandae odio? Velit consectetur, necessitatibus magni praesentium iusto accusamus perferendis officiis, vel porro sequi nisi nam odio facere animi quam assumenda nobis ex quis numquam. Doloremque, excepturi sint. Tenetur nesciunt, assumenda sunt ipsa voluptatem, odio ipsum dolorem alias dolorum minima architecto magnam ipsam cumque veritatis praesentium blanditiis exercitationem, expedita repellat pariatur delectus voluptatum excepturi. Eos ad sequi esse deleniti dolore eum est. Esse laboriosam inventore necessitatibus veniam doloribus harum ipsam, ducimus sunt eveniet sed sit ea aperiam a neque corporis doloremque suscipit reiciendis eaque vitae minima rem aspernatur architecto ipsa animi! Consequuntur sequi et veniam facilis nobis unde neque excepturi architecto laboriosam maiores atque dignissimos sapiente aperiam nihil soluta suscipit deleniti eligendi at, qui deserunt. Dicta deleniti fuga, libero distinctio, incidunt doloremque quam tempore cumque, nobis culpa repellendus tempora? Repudiandae distinctio hic accusamus molestias minima voluptatibus cupiditate illo, perspiciatis ratione numquam fuga corporis dignissimos rerum quo sint eius ut atque suscipit ea aut. In, vero quidem cumque nemo, esse necessitatibus impedit magnam cupiditate corporis accusamus tempore voluptate quas saepe, recusandae labore laboriosam reprehenderit itaque ratione repudiandae iste mollitia quibusdam totam. Consequuntur ipsam dolores molestias esse dolor ipsa voluptatem nam distinctio aliquam, voluptatibus natus fuga pariatur, sit, nostrum voluptas deserunt vero possimus amet temporibus. Dolor repellat architecto, animi placeat aspernatur illo ab quos eligendi soluta non praesentium iste quasi a vero adipisci in nobis voluptatem corporis nisi doloribus tenetur perferendis facilis nulla. Doloremque repellendus magnam fugiat quos molestias, soluta eum iste totam perspiciatis unde commodi incidunt enim quisquam dolores numquam dignissimos delectus tempora ipsa ad quidem eos odit perferendis voluptatem. Sint quos, impedit asperiores provident enim minus in aut molestias voluptatibus sit, placeat eaque. Veritatis, dicta quaerat minus excepturi libero laboriosam et odit quas magnam, possimus laborum odio tempora consequatur rem quasi, voluptate debitis? Aut quasi error cum possimus perferendis asperiores. Alias corrupti ab aut earum facere laudantium magnam expedita in accusantium! Quae maiores earum aliquam, laboriosam voluptatem accusantium corrupti ratione totam est ad vitae. Enim, iste nulla perspiciatis labore asperiores sed temporibus explicabo praesentium facere autem cumque, architecto exercitationem quaerat expedita omnis rem quisquam fuga. Unde eaque aperiam corrupti voluptatum dolorem commodi cumque, modi obcaecati dignissimos ullam iure eum vero quaerat doloremque impedit nulla et aut vel sed dolor pariatur quibusdam. Fuga veritatis reiciendis tempora sunt velit doloribus quisquam exercitationem repellat, fugiat consectetur maxime quas facilis cumque tempore perspiciatis aperiam consequatur eligendi rem nostrum rerum molestias unde odit! Hic aliquam quas, laborum, voluptates sit cumque, vero sunt illo suscipit quaerat a magnam! Maiores molestias animi, quas est accusamus laudantium possimus ipsa vitae excepturi asperiores, voluptatum architecto dolor placeat non tempore amet iure aperiam. Facere earum ut itaque vero ea dolore quod? Error quis ipsa ducimus sequi officia fugiat molestiae assumenda quasi totam, velit iusto, rerum consequatur laborum at culpa magni, cumque esse nisi? Tenetur harum repudiandae in quos expedita distinctio voluptatum quisquam officiis ad laboriosam aliquam nihil dicta ipsum unde labore vitae omnis, facilis tempore quibusdam totam modi. Praesentium eaque ex, ipsum nesciunt cum tenetur laboriosam aut quos veritatis. Praesentium illo corrupti omnis id consequuntur pariatur! Nam labore assumenda suscipit, adipisci perferendis accusantium! Nulla, reiciendis aperiam? Inventore similique hic, optio atque consectetur facere excepturi dolor sunt beatae. Necessitatibus culpa modi sed velit labore, placeat optio laborum explicabo, consequatur nesciunt nobis, animi nemo mollitia quae. Ipsa porro explicabo quibusdam molestias praesentium, quia accusamus hic laborum repellat quas pariatur neque aspernatur perspiciatis minima quae molestiae? Veritatis, ea. Magni, eius ex? Eligendi porro sint fuga beatae deleniti cumque repudiandae cupiditate culpa minus a alias hic itaque repellat accusamus voluptas laborum earum perferendis, atque illum? Id totam illo expedita aut quam praesentium distinctio, modi, quasi alias quisquam itaque fugit, facere inventore voluptas sapiente corporis? Sint recusandae neque totam illum eius aspernatur! Assumenda distinctio nam soluta unde magnam quae nesciunt repellendus architecto odio ab officiis repellat, dicta atque ullam repudiandae, vitae, molestiae quo delectus. Ut, quos ducimus itaque ipsum esse distinctio. Dolore doloribus eos itaque quia corporis eligendi odit ab voluptas aperiam quis, accusantium, officiis perspiciatis ipsum enim voluptate quo recusandae quasi error. Odit beatae omnis in ipsum rem dignissimos temporibus doloremque magni est molestiae amet hic quisquam assumenda eveniet minus provident alias architecto, laudantium fugiat quaerat incidunt itaque consequatur! Dolor ad soluta, tempore sint error necessitatibus mollitia reiciendis consequuntur ratione quo sit nobis impedit in explicabo libero hic nemo recusandae rem esse reprehenderit? Minus qui inventore laborum recusandae, ipsum repellendus modi fugiat aspernatur commodi necessitatibus dolores quos nam molestiae alias, corrupti similique quidem perspiciatis neque dolorum officiis aperiam! Cum necessitatibus maiores, id aliquid sunt fugit corrupti aliquam architecto? Aliquid nihil laborum dicta nulla rem! Quisquam quis quidem dolores facere? Odio quis debitis necessitatibus quod beatae nulla repellat sapiente. Ipsa facilis rerum impedit mollitia beatae alias sunt, iure repellat voluptas quisquam, dolores veniam eligendi quaerat omnis. Sunt ullam consequatur explicabo commodi, consectetur aperiam sit a, nostrum provident alias mollitia! Architecto corrupti eos debitis repellat vero perspiciatis illo non voluptas, officiis illum qui nulla fugiat reiciendis impedit rerum vel ullam maxime quam totam distinctio saepe quidem ipsum quas fugit. Quibusdam soluta nesciunt adipisci commodi. Debitis quae consequuntur beatae illum quia similique aspernatur quaerat! Fugit atque alias aut accusantium! Molestias ipsa earum commodi saepe neque. Assumenda, et amet libero, voluptatibus reiciendis commodi dolor quod illum mollitia, atque nihil maiores adipisci dolore rem provident deleniti ab sapiente? Dolorem magnam architecto quae aliquid ducimus accusamus, vero qui et laborum! Molestiae fuga vel totam quo hic, sint, laboriosam ratione ea blanditiis aspernatur iure recusandae minus quaerat labore similique reprehenderit officia suscipit earum quam illo velit! Animi, sunt non eius eos eveniet sed, officia, repellendus dolorem tempore quidem doloremque dolore cumque voluptas quos tenetur hic sint laborum beatae optio error illum nemo quis libero. Eveniet dolore distinctio nam accusantium placeat ullam dolorem beatae, minus voluptates et earum dolores. Sequi atque accusamus eos vitae quo laborum incidunt consequatur beatae voluptatibus esse, eveniet, et omnis odio amet cupiditate accusantium. Impedit doloribus aut nobis rem modi, commodi repellat, cupiditate eum quod id, perferendis blanditiis accusantium totam aliquam asperiores quas necessitatibus voluptas inventore alias dignissimos doloremque enim maxime voluptatibus. Dicta earum in ex error impedit nostrum incidunt eos eaque, facilis consectetur magni, maxime exercitationem porro, quasi voluptatem perspiciatis enim consequatur ipsa nobis recusandae? Suscipit sunt eveniet sapiente pariatur eligendi vitae asperiores quo reprehenderit sequi deleniti omnis nulla voluptate voluptates facere, officia molestiae quae, ea temporibus adipisci molestias! Vero facilis natus voluptate aperiam esse aspernatur iusto aut atque, tenetur quo ipsa accusantium ut et possimus placeat, provident quod. Velit ad veniam unde nesciunt qui atque architecto animi odit, error tenetur sint perferendis facere commodi. Nulla pariatur ducimus aliquam exercitationem rerum dignissimos saepe, sequi nesciunt minima autem, et a officiis asperiores laboriosam eveniet ea quibusdam sed minus. In quos, asperiores saepe iusto voluptates nam, omnis ducimus dolore quam alias repudiandae aliquam nostrum magnam, vitae veritatis nulla ab sed praesentium deserunt? Consectetur earum obcaecati, libero exercitationem et autem itaque minima fugiat, consequatur rem amet tempora vero provident, deleniti odit magnam nulla? Tempore consectetur suscipit dolore, similique fugit ea corporis unde saepe sint aliquid deleniti minus voluptatem libero tempora dignissimos harum voluptas quasi facere quaerat commodi blanditiis ipsa sapiente accusamus dolorem? Necessitatibus corporis quis aperiam numquam, minus provident cum exercitationem repellendus quibusdam odio enim excepturi? Sunt voluptatibus, ducimus, voluptas odit possimus itaque corrupti delectus molestiae minus odio aspernatur temporibus. Consectetur delectus quaerat optio nihil cum ad necessitatibus quidem amet at, dolorum veritatis porro minima voluptas veniam molestias modi similique pariatur. Provident dignissimos id quisquam illo dolores eos est nobis officiis asperiores tenetur labore amet eaque suscipit nulla dolor minus accusamus tempora praesentium repellat enim dicta, officia molestias delectus quae. Ducimus dolorem quibusdam consequatur minima ex non, facilis architecto voluptatum quidem culpa deleniti commodi sequi, quos odit dicta voluptatibus aliquid hic! Placeat commodi quisquam nesciunt alias? Laborum voluptatibus voluptatem quae at impedit, molestiae nemo quasi consequuntur ab optio non nostrum cumque minima sunt ad architecto hic! Vero, libero ullam? Odio quae asperiores, dolores, esse, ad soluta at perspiciatis illum ratione voluptatem necessitatibus ea doloremque amet repudiandae modi placeat adipisci unde? Consequatur magnam corrupti est voluptatum ex dicta explicabo, quis maxime, veniam quos sunt provident accusamus, perspiciatis aperiam dolor fugit iusto a exercitationem recusandae quod sit totam! Corporis obcaecati voluptas, a quo adipisci ea temporibus sint sed dignissimos maiores nemo totam, facere ipsam itaque illum maxime possimus cupiditate corrupti natus quia voluptatibus. Necessitatibus qui provident culpa porro pariatur omnis amet, modi consequuntur facilis error repellat corporis accusantium sed, quidem dolorum magni, quos enim? Provident, unde voluptas minima facere ducimus esse nesciunt nostrum ex explicabo illo iure, dicta ratione, quo totam quae ipsam dolores animi! Modi id amet quis eligendi odit itaque voluptatum dolorum quasi, illum nostrum sapiente eaque harum delectus autem repudiandae, nulla cumque! Dicta nemo numquam incidunt odio, nisi dolore minus totam provident perspiciatis eius repellat blanditiis soluta iusto asperiores, cum iure est atque officia consequatur quod! Consequatur porro eum incidunt repellat ad sequi delectus debitis laborum. Quae dolore quas asperiores praesentium adipisci cumque? Dolorem rem nulla quaerat, animi nemo reiciendis perferendis cum laboriosam at illum a omnis repellat, exercitationem nostrum modi doloribus, incidunt vitae architecto corrupti. Totam aperiam molestiae corporis at dolore saepe. Provident natus molestias, itaque distinctio commodi aliquam possimus, molestiae, laborum at temporibus doloremque similique debitis reprehenderit? Error accusamus enim similique adipisci vero sit laudantium, qui reprehenderit temporibus nobis incidunt inventore dolores quae repudiandae facere ab perspiciatis! Dolor commodi nulla mollitia porro id error perferendis esse? Nostrum rerum error molestias corporis architecto inventore laudantium quae sit placeat, tenetur debitis doloremque, quod, nobis ab fugit recusandae. Veniam, facilis officia dolores similique, unde dicta qui fugiat doloribus magni error tempore numquam explicabo placeat voluptate? Pariatur a eaque, ipsa ab mollitia, quod eveniet voluptates eum nostrum earum nemo nihil voluptatibus odit dignissimos consequatur vero nam impedit. Vel magnam, repudiandae, rerum quidem commodi facere ab impedit ex aliquam aliquid, fuga pariatur vitae nam. Sapiente amet, incidunt voluptates fugiat magnam, aperiam eligendi quas est voluptatum ea veritatis facilis quo illum quasi, aut velit nulla maiores. Pariatur dolorem quidem veniam nulla vitae cupiditate, beatae, magnam accusamus culpa illum porro accusantium officia rem officiis voluptatum quos dolorum eos quae dolore enim ullam iusto. Provident dolorem quod aspernatur ipsum veniam vel hic consequatur odio ullam explicabo, quas recusandae mollitia dolores eveniet minima? Veniam deserunt eligendi voluptate et. Fugiat fuga esse tempore! Incidunt nisi quisquam dolores illum esse delectus suscipit facilis iusto veritatis. Ipsam dolorem praesentium aliquid omnis quidem aperiam obcaecati veritatis aspernatur rem vitae recusandae necessitatibus totam doloribus a voluptas officiis suscipit commodi sint molestias temporibus maiores, beatae soluta? Ipsa eum aut quibusdam aspernatur ut officiis officia. Placeat numquam quae sit ipsa voluptas natus. Dolores deleniti facilis illo placeat aliquid quasi fugiat, quos pariatur atque dignissimos soluta quae alias modi saepe iusto? Quas odio totam cupiditate reiciendis eaque minima similique harum? Repellat odio commodi magnam. Tenetur delectus suscipit facere enim omnis sit itaque consectetur quaerat hic sapiente quae sequi incidunt eum nam odio eligendi expedita, ea illo quibusdam? Eveniet natus earum alias! Nobis tempore, excepturi eveniet saepe enim pariatur dolores assumenda in reiciendis quam vitae minima nisi commodi quo, accusantium odio repellat, non veniam?
+                {/* Down section */}
+                <div className="flex-1 flex flex-col items-center  max-h-[100%] w-max-full overflow-y-auto">
+
+                        {/* Switch path */}
+                        {
+                            paths.length > 0 &&
+                            
+                            <MontageResult paths={paths} pathIndex={pathIndex} setPathIndex={setPathIndex}></MontageResult>
+                            // <>
+                            
+                            //     <div className="flex items-center gap-4 select-none">
+                            //         <div onClick={()=>{if(pathIndex>0){setPathIndex(pathIndex-1)}}} className="rotate-180 bg-blue-light rounded-r-lg px-3 py-1 fill-blue-dark/60 hover:fill-blue-dark/80 transition cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path d="M7 1L5.6 2.5L13 10l-7.4 7.5L7 19l9-9z"/></svg></div>
+                            //         <div className="text-xl">{pathIndex+1} / {paths.length}</div>
+                            //         <div onClick={()=>{if(pathIndex<paths.length-1){setPathIndex(pathIndex+1)}}} className="bg-blue-light rounded-r-lg px-3 py-1 fill-blue-dark/60 hover:fill-blue-dark/80 transition cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path d="M7 1L5.6 2.5L13 10l-7.4 7.5L7 19l9-9z"/></svg></div>
+                            //     </div>
+                            //     {
+                            //         paths[pathIndex]?.paths?.map(path=> (
+                            //             <div className="flex flex-col gap-1 items-center">
+                            //                 {/* ligne */}
+                            //                 <div className="w-[1px] h-[30px] bg-blue-primary/50"></div>
+
+                            //                 {/* Connexion A */}
+                            //                 { path.in.material != "start" &&
+                            //                     <div className="flex gap-1 rounded-t-md text-center overflow-hidden">
+                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.material}</p>
+                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.type}</p>
+                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.diam}</p>
+                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.sexe}</p>
+                            //                     </div>
+                            //                 }
+                                            
+
+                            //                 {/* Article */}
+                            //                 <div className="flex rounded-md overflow-hidden">
+                            //                     <p className="bg-blue-dark text-white text-lg px-3 py-1">{path.id}</p>
+                            //                     <p className="bg-blue-primary/40 text-lg px-3 py-1">{path.label}</p>
+                            //                 </div>
+
+                            //                 {/* Connexion B */}
+                            //                 <div className="flex gap-1 rounded-b-md text-center overflow-hidden">
+                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.material}</p>
+                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.type}</p>
+                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.diam}</p>
+                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.sexe}</p>
+                            //                 </div>
+                            //             </div>
+                            //         ))
+                            //     }
+                            // </>
+                        }
+                        
+                </div>
             </div>
-        </div>
+
+        </>
     )
 }
