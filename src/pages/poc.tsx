@@ -11,7 +11,7 @@ export default function PoCPage(){
 
     return (
         
-        <div className="h-full w-full flex flex-row p-2">
+        <div className="h-full flex flex-row p-2 overflow-hidden">
 
             {/* Side menu */}
             <div className="border-r-1 border-blue-semi-light/30 flex flex-col">
@@ -34,7 +34,7 @@ export default function PoCPage(){
             </div>
 
             {/* Content */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0 flex flex-col">
                 {
                     activeTab === "Connexion" && <ConnexionTool></ConnexionTool>
                 }

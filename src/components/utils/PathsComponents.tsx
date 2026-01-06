@@ -17,7 +17,7 @@ export default function MontageResult({
   const currentPath: PathProduct[] = paths[pathIndex]?.paths ?? [];
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="flex flex-col gap-10 p-8 overflow-x-auto">
 
       {/* NAVIGATION */}
       <div className="flex items-center justify-center gap-6 select-none">
@@ -41,12 +41,7 @@ export default function MontageResult({
       {/* MONTAGE – SCROLL VERTICAL */}
       <div
         className="
-          max-h-[70vh]
-          overflow-y-auto
-          overflow-x-hidden
-          py-6 px-4
-          flex flex-col items-center
-          gap-6
+        flex gap-6 min-w-max
         "
       >
         {currentPath.map((path, index) => (

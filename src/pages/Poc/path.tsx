@@ -443,7 +443,7 @@ export default function connexionsTools(){
                 }
             </AnimatePresence>
 
-            <div className=" h-full flex flex-col gap-2 p-2">
+            <div className="h-full w-full flex flex-col gap-2 p-2">
                 
                 {/* top section */}
 
@@ -732,54 +732,14 @@ export default function connexionsTools(){
                 </div>
 
                 {/* Down section */}
-                <div className="flex-1 flex flex-col items-center  max-h-[100%] w-max-full overflow-y-auto">
+                <div className="flex-1 flex flex-col min-h-0 overflow-auto">
 
                         {/* Switch path */}
                         {
                             paths.length > 0 &&
                             
                             <MontageResult paths={paths} pathIndex={pathIndex} setPathIndex={setPathIndex}></MontageResult>
-                            // <>
-                            
-                            //     <div className="flex items-center gap-4 select-none">
-                            //         <div onClick={()=>{if(pathIndex>0){setPathIndex(pathIndex-1)}}} className="rotate-180 bg-blue-light rounded-r-lg px-3 py-1 fill-blue-dark/60 hover:fill-blue-dark/80 transition cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path d="M7 1L5.6 2.5L13 10l-7.4 7.5L7 19l9-9z"/></svg></div>
-                            //         <div className="text-xl">{pathIndex+1} / {paths.length}</div>
-                            //         <div onClick={()=>{if(pathIndex<paths.length-1){setPathIndex(pathIndex+1)}}} className="bg-blue-light rounded-r-lg px-3 py-1 fill-blue-dark/60 hover:fill-blue-dark/80 transition cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path d="M7 1L5.6 2.5L13 10l-7.4 7.5L7 19l9-9z"/></svg></div>
-                            //     </div>
-                            //     {
-                            //         paths[pathIndex]?.paths?.map(path=> (
-                            //             <div className="flex flex-col gap-1 items-center">
-                            //                 {/* ligne */}
-                            //                 <div className="w-[1px] h-[30px] bg-blue-primary/50"></div>
-
-                            //                 {/* Connexion A */}
-                            //                 { path.in.material != "start" &&
-                            //                     <div className="flex gap-1 rounded-t-md text-center overflow-hidden">
-                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.material}</p>
-                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.type}</p>
-                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.diam}</p>
-                            //                         <p className="bg-blue-primary/30 px-2 py-0.5">{path.in.sexe}</p>
-                            //                     </div>
-                            //                 }
-                                            
-
-                            //                 {/* Article */}
-                            //                 <div className="flex rounded-md overflow-hidden">
-                            //                     <p className="bg-blue-dark text-white text-lg px-3 py-1">{path.id}</p>
-                            //                     <p className="bg-blue-primary/40 text-lg px-3 py-1">{path.label}</p>
-                            //                 </div>
-
-                            //                 {/* Connexion B */}
-                            //                 <div className="flex gap-1 rounded-b-md text-center overflow-hidden">
-                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.material}</p>
-                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.type}</p>
-                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.diam}</p>
-                            //                     <p className="bg-blue-primary/30 px-2 py-0.5">{path.out.sexe}</p>
-                            //                 </div>
-                            //             </div>
-                            //         ))
-                            //     }
-                            // </>
+                           
                         }
                         
                 </div>
