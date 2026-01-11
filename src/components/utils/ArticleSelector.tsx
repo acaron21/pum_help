@@ -29,10 +29,7 @@ export default function ArticleSelector({onClose, articles, selectArticle}: Prop
             transition={{duration:0.2}}
             onClick={()=>{onClose()}} 
             className="hidden overflow-hidden md:flex md:flex-col  items-center justify-start pt-5 absolute z-1000 top-0 left-0 h-screen w-screen bg-black/70">
-        
-        
-        
-            <div onClick={(e)=>e.stopPropagation()} className=" w-[70%] max-h-full rounded-xl flex flex-col gap-3 py-5">
+            <div onClick={(e)=>e.stopPropagation()} className=" w-[70%] max-h-full rounded-xl flex flex-col py-5">
                 
                 {/* Research barre */}
                 <div className="w-full flex self-center items-center gap-2 bg-blue-light p-3 rounded-[20px]">
@@ -57,7 +54,7 @@ export default function ArticleSelector({onClose, articles, selectArticle}: Prop
                     
                 
                 </div>
-                
+                <p className="text-end pr-5 text-white text-lg"><span className="font-bold">{filtered.length}</span> résultats</p>
                 {/* Results */}
                 <div className={clsx("max-h-full overflow-y-auto  text-xl")}>
                     <table className="border-separate w-full">
@@ -76,6 +73,7 @@ export default function ArticleSelector({onClose, articles, selectArticle}: Prop
                     </table>
 
                 </div>
+                
             </div>
         
         

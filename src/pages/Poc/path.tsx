@@ -207,7 +207,7 @@ export function selectedArticleReducer(state: SelectedArticleState, action: Sele
 export default function connexionsTools(){
 
     // UI variables
-    const [activeTab, setActiveTab] = useState("articles") // connexions | articles
+    const [activeTab, setActiveTab] = useState("connexions") // connexions | articles
     const [showSelecion, setShowSelection] = useState(true);
 
     // FOR CONNEXIONS SELECT
