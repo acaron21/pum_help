@@ -8,6 +8,8 @@ import ChambreTelecomSelecter from "./ContentOptions/ChambreTelecomSelecter"
 import PVCUSelecter from "./ContentOptions/PVCUSelecter"
 import EcopalSelecter from "./ContentOptions/ECOPALSelecter"
 import CR8Selecter from "./ContentOptions/CR8Selecter"
+import BidimSelecter from "./ContentOptions/BidimSelecter"
+import BetonSelecter from "./ContentOptions/BetonSelecter"
 
 
 // ==== Switch to know which Custom Selector show in the IC modal. See all specific selector in the folder : ./ContentOptions/
@@ -76,6 +78,18 @@ export default function ICContentOptions(props: {ic:number, setDiam:React.Dispat
                 props.ic === 0 &&
                 <div className="flex flex-col">
                     <CR8Selecter></CR8Selecter>
+                </div>
+            }
+            {
+                 props.ic === 81 &&
+                <div className="flex flex-col">
+                    <BidimSelecter></BidimSelecter>
+                </div>
+            }
+            {
+                 props.ic === 2798 &&
+                <div className="flex flex-col">
+                    <BetonSelecter></BetonSelecter>
                 </div>
             }
         

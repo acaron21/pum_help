@@ -238,7 +238,7 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
     )
 }
 
-const listOfTools = [117, 67, 116, 843, 842, 2766, 1, 0, 312];
+const listOfTools = [117, 67, 116, 843, 842, 2766, 1, 0, 312, 81];
 const listOfCompatibleProducts = [117];
 
 // ==== IC Item in the "code IC ?" menu
