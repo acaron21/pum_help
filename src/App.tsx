@@ -1,22 +1,17 @@
-import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
-import Navigation from "./components/Navigation"
-import ICPage from "./pages/ICPage"
-import HowPage from "./pages/HowPage"
-import WherePage2 from "./pages/WherePage2"
-import TcodePage from "./pages/TcodePage"
-import PoCPage from "./pages/poc"
-
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Navigation from "./components/Navigation";
+import ICPage from "./pages/ICPage";
+import HowPage from "./pages/HowPage";
+import WherePage2 from "./pages/WherePage2";
+import TcodePage from "./pages/TcodePage";
+import PoCPage from "./pages/poc";
+import { RmWorkspace } from "./pages/RM/RmWorkspace";
 
 function App() {
-
-
-
   return (
     <div className="min-h-screen flex flex-col">
       <BrowserRouter basename={import.meta.env.BASE_URL}>
-
-        <Navigation/>
+        <Navigation />
         <div className="flex-1 flex flex-col h-0">
           <Routes>
             <Route path="/" element={<Navigate to="/ic" replace />} />
@@ -25,14 +20,12 @@ function App() {
             <Route path="/ic" element={<ICPage />} />
             <Route path="/etiquettes" element={<TcodePage />} />
             <Route path="/poc" element={<PoCPage />} />
+            <Route path="/rm" element={<RmWorkspace />} />
           </Routes>
         </div>
-        
-
-    </BrowserRouter>
+      </BrowserRouter>
     </div>
-
-  )
+  );
 }
 
-export default App
+export default App;

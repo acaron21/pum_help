@@ -121,7 +121,7 @@ export function InfoModal(props: {ic:IC, setShowInfoModal:(b: boolean)=>void}){
     const [compatibleProducts, setCompatibleProducts] = useState<CategoryData[]>([]);
     const [showCompatibleProducts, setShowCompatibleProducts] = useState(false);
     const [loading, setLoading] = useState(true);
-
+    
     // Load data each time we change diam (ONLY FOR IC 117 --> PROTOTYPE)
     useEffect(()=>{
         const loadData = async ()=>{

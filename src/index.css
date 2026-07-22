@@ -1,12 +1,259 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
 
+/*
+|--------------------------------------------------------------------------
+| Palette métier
+|--------------------------------------------------------------------------
+| Ces couleurs restent disponibles avec :
+| bg-blue-primary, text-blue-dark, border-blue-semi-light, etc.
+*/
 
-@theme{
-
-/* colors */
-  --color-blue-primary: #009EE3;
+@theme {
+  --color-blue-primary: #009ee3;
   --color-blue-dark: #173961;
-  --color-blue-light: #EBF6FF;
-  --color-blue-semi-light: #BCE1FF;
+  --color-blue-light: #ebf6ff;
+  --color-blue-semi-light: #bce1ff;
   --color-red-primary: #e3101a;
+
+  --color-success: #15803d;
+  --color-success-light: #f0fdf4;
+
+  --color-warning: #b45309;
+  --color-warning-light: #fffbeb;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Thème shadcn/ui
+|--------------------------------------------------------------------------
+| Les variables décrivent le rôle des couleurs et non leur nom visuel.
+*/
+
+:root {
+  --radius: 0.625rem;
+
+  --background: #f6f8fb;
+  --foreground: #172b43;
+
+  --card: #ffffff;
+  --card-foreground: #172b43;
+
+  --popover: #ffffff;
+  --popover-foreground: #172b43;
+
+  --primary: #009ee3;
+  --primary-foreground: #ffffff;
+
+  --secondary: #edf3f8;
+  --secondary-foreground: #173961;
+
+  --muted: #eef2f6;
+  --muted-foreground: #65758b;
+
+  --accent: #e5f4ff;
+  --accent-foreground: #14527a;
+
+  --destructive: #e3101a;
+  --destructive-foreground: #ffffff;
+
+  --border: #d9e1ea;
+  --input: #d2dce7;
+  --ring: #009ee3;
+
+  --chart-1: #009ee3;
+  --chart-2: #173961;
+  --chart-3: #15803d;
+  --chart-4: #b45309;
+  --chart-5: #e3101a;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #172b43;
+  --sidebar-primary: #009ee3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebf6ff;
+  --sidebar-accent-foreground: #173961;
+  --sidebar-border: #d9e1ea;
+  --sidebar-ring: #009ee3;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Correspondance Tailwind ↔ variables shadcn
+|--------------------------------------------------------------------------
+*/
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Styles globaux
+|--------------------------------------------------------------------------
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    background-color: var(--background);
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    margin: 0;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: var(--blue-semi-light, #bce1ff);
+    color: #173961;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Classes métier optionnelles
+|--------------------------------------------------------------------------
+*/
+
+@layer components {
+  .app-panel {
+    @apply rounded-xl border bg-card text-card-foreground shadow-sm;
+  }
+
+  .app-toolbar {
+    @apply flex items-center gap-2 rounded-xl border bg-card p-2 shadow-sm;
+  }
+
+  .delivery-priority {
+    @apply border-red-primary/30 bg-red-primary/10 text-red-primary;
+  }
+
+  .delivery-unassigned {
+    @apply border-dashed border-muted-foreground/40 bg-muted/50;
+  }
+
+  .delivery-pl1 {
+    @apply border-blue-primary/30 bg-blue-light text-blue-dark;
+  }
+
+  .delivery-pl2 {
+    @apply border-blue-dark/25 bg-blue-dark/10 text-blue-dark;
+  }
+
+  .delivery-vl {
+    @apply border-success/25 bg-success-light text-success;
+  }
+}
+
+@layer components {
+  /*
+   * Leaflet crée plusieurs conteneurs imbriqués.
+   * Cette règle garantit que la carte utilise toute la hauteur
+   * donnée par son composant parent.
+   */
+  .delivery-map,
+  .delivery-map .leaflet-container {
+    width: 100%;
+    height: 100%;
+    min-height: 28rem;
+  }
+
+  /*
+   * Tooltip compact destiné aux commandes.
+   */
+  .delivery-map-tooltip {
+    border: 0;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    box-shadow:
+      0 8px 20px rgb(15 23 42 / 10%),
+      0 2px 6px rgb(15 23 42 / 8%);
+  }
+
+  /*
+   * Supprime le petit triangle blanc du tooltip Leaflet.
+   * Tu peux retirer cette règle si tu préfères le conserver.
+   */
+  .delivery-map-tooltip::before {
+    display: none;
+  }
 }
